@@ -30,7 +30,7 @@ contract Lottery {
     // we don't want the manager to participate
     function enter() public notOwner payable {
         // participants need to pay 1ether
-        require(msg.value == 0.01 ether);
+        require(msg.value > 0.01 ether);
         // add the player 
         players.push(msg.sender);
     }
