@@ -13,7 +13,8 @@ export class LotteryComponent implements OnInit, OnDestroy {
   etherAmount:number = 0;
   players: any;
   managerAddress:any;
-  balance: any;
+  contractBalance: any;
+  userBalance: any;
 
   constructor(private contractService: ContractService) {}
   ngOnDestroy(): void {
@@ -21,7 +22,12 @@ export class LotteryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    this.contractService.connectAccount();
+    setInterval(()=> {
+      this.contractService.connectAccount().then(()=> {
+        this.contractService.getUserBalance().then((userBalance: any)=>this.userBalance=userBalance/1e18)
+      })
+    },1000);
+   
     this.accounts = this.contractService.accountStatusSource.subscribe(
       (accounts) => {
         if (accounts) {
@@ -29,7 +35,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
           this.contractService.getContractManager()
             .then(manager => this.managerAddress = manager)
           this.contractService.getContractBalance()
-            .then(balance => this.balance = balance/1e18)
+            .then(contractBalance => this.contractBalance = contractBalance/1e18)
           this.contractService.getPlayers()
             .then(players => this.players = players)
         }

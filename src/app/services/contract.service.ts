@@ -52,7 +52,6 @@ export class ContractService {
   public async getPlayers() {
     this.instantianteContract();
     const players = await this.lotteryContract.methods.getPlayers().call({from: this.accounts[0]});
-    console.log('players :>> ', players);
     return players;
   }
 
@@ -80,6 +79,11 @@ export class ContractService {
   public async pickWinner() {
     this.instantianteContract();
     await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]});
+  }
+
+  public getUserBalance() {
+    const balance = this.web3js.eth.getBalance(this.accounts[0]);
+    return balance;
   }
   
   private instantianteContract() {

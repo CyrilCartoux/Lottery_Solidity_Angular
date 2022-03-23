@@ -6,7 +6,7 @@
         You are connected with this address 
         <ul>
             <li *ngFor="let account of userEthAccounts">
-                {{account}}
+                {{account}} - {{userBalance}} ether
             </li>
         </ul>
 </div>
@@ -19,7 +19,7 @@
 </div>
 
 <div>
-    Current prize pool is : {{balance ? balance : 0}} ether 
+    Current prize pool is : {{contractBalance ? contractBalance : 0}} ether 
 </div>
 
 <div class="row" *ngIf="managerAddress != userEthAccounts[0]">
@@ -44,5 +44,5 @@
     </ul>
 </div>
 
-<button type="button" (click)="onPickWinner()" *ngIf="(players.length >0)&&(managerAddress == userEthAccounts[0])" class="btn btn-success">Pick a lucky winner</button>
+<button type="button" (click)="onPickWinner()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-success">Pick a lucky winner</button>
  <!-- *** has won ! He received x ether :  -->
