@@ -9,24 +9,29 @@ import { Subscription } from 'rxjs';
 })
 export class LotteryComponent implements OnInit, OnDestroy {
   accounts: Subscription | undefined;
+  transactionHash: Subscription |undefined;
+  winner$: Subscription|undefined;
   userEthAccounts: string[] = [];
   etherAmount:number = 0;
   players: any;
   managerAddress:any;
   contractBalance: any;
   userBalance: any;
+  transactionPending: boolean = false;
+  hash: any =null;
+  winner : any;
 
   constructor(private contractService: ContractService) {}
   ngOnDestroy(): void {
     this.accounts?.unsubscribe();
+    this.transactionHash?.unsubscribe();
+    this.winner.unsubscribe();
   }
 
   ngOnInit(): void {
-    setInterval(()=> {
       this.contractService.connectAccount().then(()=> {
         this.contractService.getUserBalance().then((userBalance: any)=>this.userBalance=userBalance/1e18)
       })
-    },1000);
    
     this.accounts = this.contractService.accountStatusSource.subscribe(
       (accounts) => {
@@ -41,13 +46,25 @@ export class LotteryComponent implements OnInit, OnDestroy {
         }
       }
     );
+    this.transactionHash = this.contractService.transactionHash.subscribe(hash => {
+      this.hash = hash;
+    })
+    this.winner$ = this.contractService.winner.subscribe(winner => {
+      this.winner = winner;
+    })
   }
 
   onEnterLottery(amount: number) {
-    this.contractService.enter(amount);
+    this.transactionPending = true;
+    this.contractService.enter(amount).then(result => {
+      this.transactionPending = false;
+    })
   }
 
   onPickWinner() {
-    this.contractService.pickWinner();
+    this.transactionPending = true;
+    this.contractService.pickWinner().then(result => {
+      this.transactionPending = false;
+    })
   }
 }

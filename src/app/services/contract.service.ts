@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import WalletConnectProvider from '@walletconnect/web3-provider';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject } from 'rxjs';
 import Web3 from 'web3';
 import Web3Modal from 'web3modal';
 import { lottery_abi, lottery_address } from 'src/abis';
@@ -16,6 +16,8 @@ export class ContractService {
   private lotteryContract: any;
 
   public accountStatusSource = new Subject<any>();
+  public transactionHash = new BehaviorSubject<any>(null);
+  public winner = new BehaviorSubject<any>(null);
 
   constructor() {
     const providerOptions = {
@@ -58,7 +60,11 @@ export class ContractService {
   public async enter(amount:number) {
     this.instantianteContract();
     const updatedAmountInGwei = amount * 1e18;
-    await this.lotteryContract.methods.enter().send({from: this.accounts[0], value: updatedAmountInGwei})
+    return await this.lotteryContract.methods.enter().send({from: this.accounts[0], value: updatedAmountInGwei})
+      .on("transactionHash", (hash: any)=> {
+        this.transactionHash.next(hash);
+      })
+      
   }
 
   public async getContractBalance() {
@@ -78,7 +84,10 @@ export class ContractService {
 
   public async pickWinner() {
     this.instantianteContract();
-    await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]});
+    await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
+      .on('receipt', (receipt: any) => {
+        this.winner.next(receipt);
+      })
   }
 
   public getUserBalance() {

@@ -22,7 +22,7 @@
     Current prize pool is : {{contractBalance ? contractBalance : 0}} ether 
 </div>
 
-<div class="row" *ngIf="managerAddress != userEthAccounts[0]">
+<div class="row" *ngIf="(managerAddress != userEthAccounts[0]) && !transactionPending">
     <div class="col-md-6">
 
         <div class="input-group mb-3">
@@ -33,6 +33,10 @@
             <button type="button" (click)="onEnterLottery(etherAmount)" class="btn btn-primary">Enter the lottery !</button>
           </div>
     </div>
+</div>
+<div *ngIf="transactionPending">
+    <p>Pending transaction ... </p>
+    <p *ngIf="hash">transaction id {{hash}}</p>
 </div>
 
 <div>
