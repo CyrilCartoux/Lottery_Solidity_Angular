@@ -4,6 +4,9 @@ contract Lottery {
     address public manager;
     address[] public players;
 
+    // Events
+    event PlayerAdded(address _address);
+
     // Only owner can call 
     modifier onlyOwner() {
         require(isOwner());
@@ -33,6 +36,7 @@ contract Lottery {
         require(msg.value > 0.01 ether);
         // add the player 
         players.push(msg.sender);
+        PlayerAdded(msg.sender);
     }
     // pick a winner from all the players and empties players array
     function pickWinner() public onlyOwner returns(address)  {
