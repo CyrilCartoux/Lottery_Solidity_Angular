@@ -42,6 +42,7 @@ testem.log
 Thumbs.db
 
 #Solidity project
-lottery/node_modules/
+lottery/node_modules/*
 lottery/.env
 lottery/compiledContract.json
+lottery/node_modules/.bin/_mocha
