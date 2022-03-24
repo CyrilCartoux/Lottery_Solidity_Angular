@@ -6,9 +6,11 @@
         You are connected with this address 
         <ul>
             <li *ngFor="let account of userEthAccounts">
-                {{account}} - {{userBalance}} ether
+                {{account}}
             </li>
         </ul>
+        <p *ngIf="userBalance">Your balance is  {{userBalance}} ether</p>   
+        
 </div>
 
 
@@ -39,13 +41,17 @@
     <p *ngIf="hash">transaction id {{hash}}</p>
 </div>
 
-<div>
+<div *ngIf="(players)&&(players.length>0)">
     List of all players addresses: 
     <ul>
         <li *ngFor="let player of players">
             {{player}}
         </li>
     </ul>
+</div>
+<div *ngIf="(players.length==0) && (managerAddress != userEthAccounts[0])">
+    <p>There is currently no player inside the lottery</p>
+    <p>Try your luck and enter with min. 0.01 ether to win </p>
 </div>
 
 <button type="button" (click)="onPickWinner()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-success">Pick a lucky winner</button>
