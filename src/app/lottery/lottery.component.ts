@@ -32,7 +32,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
         this.contractService.getUserBalance().then((userBalance: any)=>this.userBalance=userBalance/1e18)
       })
 
-    }, 5000)
+    }, 3000)
    
     this.accounts = this.contractService.accountStatusSource.subscribe(
       (accounts) => {
@@ -57,7 +57,10 @@ export class LotteryComponent implements OnInit, OnDestroy {
     this.contractService.enter(amount).then(result => {
       this.transactionPending = false;
     })
-    this.transactionPending = false;
+    .catch(err => {
+      this.transactionPending = false;
+    })
+    this.etherAmount = 0;
   }
 
   onPickWinner() {
@@ -70,7 +73,8 @@ export class LotteryComponent implements OnInit, OnDestroy {
   
   onTransfer() {
     this.transactionPending = true;
-    this.contractService.transfer();
-    this.transactionPending = false;
+    this.contractService.transfer().then(() => {
+      this.transactionPending = false;
+    })
   }
 }

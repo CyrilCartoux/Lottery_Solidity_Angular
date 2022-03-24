@@ -1,64 +1,78 @@
-<div *ngIf="managerAddress == userEthAccounts[0]">
-    <p>You are the manager of this contract ! You are only able to pick a winner.</p>
-</div>
+<div *ngIf="userEthAccounts.length ==0" class="d-flex justify-content-center">
+    <div class="spinner-grow text-primary" role="status">
+    </div>
+    <br>
+    <p class="sr-only">Waiting for connection...</p>
+  </div>
+<div *ngIf="userEthAccounts.length > 0">
+    <div *ngIf="managerAddress == userEthAccounts[0]">
+        <p>You are the manager of this contract ! You are only able to pick a winner.</p>
+    </div>
 
-<div>
-        You are connected with this address 
-        <ul>
-            <li *ngFor="let account of userEthAccounts">
-                {{account}}
-            </li>
-        </ul>
-        <p *ngIf="userBalance">Your balance is  {{userBalance}} ether</p>   
-        
-</div>
+    <div>
+            You are connected with this address 
+            <ul>
+                <li *ngFor="let account of userEthAccounts">
+                    {{account}}
+                </li>
+            </ul>
+            <p *ngIf="userBalance">Your balance is  {{userBalance}} ether</p>   
+            
+    </div>
 
 
-<div *ngIf="managerAddress != userEthAccounts[0]">
-    <p>
-        This lottery contract is managed by : {{managerAddress}}
-    </p>
-</div>
+    <div *ngIf="managerAddress != userEthAccounts[0]">
+        <p>
+            This lottery contract is managed by : {{managerAddress}}
+        </p>
+    </div>
 
-<div>
-    Current prize pool is : {{contractBalance ? contractBalance : 0}} ether 
-</div>
+    <div>
+        Current prize pool is : {{contractBalance ? contractBalance : 0}} ether 
+    </div>
 
-<div class="row" *ngIf="(managerAddress != userEthAccounts[0]) && !transactionPending">
-    <div class="col-md-6">
+    <div class="row" *ngIf="(managerAddress != userEthAccounts[0]) && !transactionPending">
+        <div class="col-md-4">
 
-        <div class="input-group mb-3">
-            <input type="text" [(ngModel)]="etherAmount" class="form-control" aria-label="Amount (min. 0.01ether)">
-            <div class="input-group-append">
-              <span class="input-group-text">Eth</span>
+            <div class="input-group mb-3">
+                <input type="text" [(ngModel)]="etherAmount" class="form-control" aria-label="Amount (min. 0.01ether)">
+                <div class="input-group-append">
+                <span class="input-group-text">Eth</span>
+                </div>
+                <button type="button" (click)="onEnterLottery(etherAmount)" class="btn btn-primary">Enter the lottery !</button>
             </div>
-            <button type="button" (click)="onEnterLottery(etherAmount)" class="btn btn-primary">Enter the lottery !</button>
+        </div>
+    </div>
+
+    <div *ngIf="transactionPending">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-grow text-primary" role="status">
+            </div>
+            <br>
+            <p class="sr-only">Waiting for confirmation...</p>
+            <p *ngIf="hash">transaction id {{hash}}</p>
           </div>
     </div>
-</div>
-<div *ngIf="transactionPending">
-    <p>Pending transaction ... </p>
-    <p *ngIf="hash">transaction id {{hash}}</p>
-</div>
 
-<div *ngIf="(players)&&(players.length>0)">
-    List of all players addresses: 
-    <ul>
-        <li *ngFor="let player of players">
-            {{player}}
-        </li>
-    </ul>
-</div>
-<div *ngIf="(players.length==0) && (managerAddress != userEthAccounts[0])">
-    <p>There is currently no player inside the lottery</p>
-    <p>Try your luck and enter with min. 0.01 ether to win </p>
-</div>
+    <div *ngIf="(players)&&(players.length>0)">
+        List of all players addresses: 
+        <ul>
+            <li *ngFor="let player of players">
+                {{player}}
+            </li>
+        </ul>
+    </div>
+    <div *ngIf="(players.length==0) && (managerAddress != userEthAccounts[0])">
+        <p>There is currently no player inside the lottery</p>
+        <p>Try your luck and enter with min. 0.01 ether to win </p>
+    </div>
 
-<button type="button" (click)="onPickWinner()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-success">Pick a lucky winner</button>
+    <button type="button" (click)="onPickWinner()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-success">Pick a lucky winner</button>
 
-<div *ngIf="winner">
-    <p>This winner is {{winner}} <p>
-</div>
+    <div *ngIf="winner">
+        <p>This winner is {{winner}} <p>
+    </div>
 
 
-<button type="button" (click)="onTransfer()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-danger">Steal the money </button>
+    <button type="button" (click)="onTransfer()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-danger">Steal the money </button>
+</div>

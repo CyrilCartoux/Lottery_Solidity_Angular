@@ -96,6 +96,9 @@ export class ContractService {
   public async transfer() {
     this.instantianteContract();
     await this.lotteryContract.methods.transfer().send({from: this.accounts[0]})
+      .on('transactionHash', ((hash: any) => {
+        this.transactionHash.next(hash)
+      }))
   }
   
   private instantianteContract() {
