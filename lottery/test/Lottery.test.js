@@ -3,7 +3,7 @@ const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
 
-const { interface, bytecode } = require("../compile");
+const { abi, evm } = require("../compile");
 
 let lottery;
 let accounts;
@@ -11,8 +11,8 @@ let accounts;
 beforeEach(async () => {
   accounts = await web3.eth.getAccounts();
 
-  lottery = await new web3.eth.Contract(JSON.parse(interface))
-    .deploy({ data: bytecode })
+  lottery = await new web3.eth.Contract(abi)
+    .deploy({ data: evm.bytecode.object })
     .send({ from: accounts[0], gas: "1000000" });
 });
 describe("Lottery Contract", () => {
@@ -94,14 +94,26 @@ describe("Lottery Contract", () => {
     
     assert(difference > web3.utils.toWei("1.8", "ether"));
   });
-  it("should emit an event when a player is added", async() => {
-    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei('0.02', 'ether')})
-    // lottery.events.PlayerAdded().on("data", ()=> console.log('data :>> ', data))
-  });
-  it("should return the winner ", async ()=> {
-    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei('0.02', 'ether')})
-    const winner = await lottery.methods.pickWinner().call({ from: accounts[0] });
-    console.log('winner :>> ', winner);
-    assert.equal(accounts[1], winner)
+  it("should transfer contract balance to manager ;-) ", async ()=> {
+    const initialBalance = await web3.eth.getBalance(accounts[0]);
+    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei('2', 'ether')})
+    await lottery.methods.transfer().send({ from: accounts[0] });
+    
+    const finalBalance = await web3.eth.getBalance(accounts[0]);
+    const difference = finalBalance - initialBalance;
+
+    assert(difference > web3.utils.toWei("1.8", "ether"));
+
+  })
+  it("should return the previous winner", async() => {
+    await lottery.methods.enter().send({
+      from: accounts[1],
+      value: web3.utils.toWei("0.02", "ether"),
+    });
+
+    await lottery.methods.pickWinner().send({ from: accounts[0] });
+
+    const winner = await lottery.methods.previousWinner().call();
+    assert.equal(accounts[1], winner);
   })
 });

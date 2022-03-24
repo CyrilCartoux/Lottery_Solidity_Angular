@@ -83,7 +83,8 @@ export class ContractService {
 
   public async pickWinner() {
     this.instantianteContract();
-    const winner = this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
+    await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
+    const winner = await this.lotteryContract.methods.previousWinner().call(); 
     return winner;
   }
 

@@ -50,5 +50,9 @@
 
 <button type="button" (click)="onPickWinner()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-success">Pick a lucky winner</button>
 
+<div *ngIf="winner">
+    <p>This winner is {{winner}} <p>
+</div>
+
 
 <button type="button" (click)="onTransfer()" *ngIf="((players)&&(players.length >0))&&(managerAddress == userEthAccounts[0])" class="btn btn-danger">Steal the money </button>

@@ -32,7 +32,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
         this.contractService.getUserBalance().then((userBalance: any)=>this.userBalance=userBalance/1e18)
       })
 
-    }, 100)
+    }, 5000)
    
     this.accounts = this.contractService.accountStatusSource.subscribe(
       (accounts) => {

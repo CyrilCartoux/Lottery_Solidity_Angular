@@ -2,10 +2,11 @@ require('dotenv').config()
 const HDWalletProvider = require('@truffle/hdwallet-provider');
 const Web3 = require('web3');
 const fs = require("fs");
-const { interface, bytecode } = require('./compile');
+const { abi, evm } = require('./compile');
 
-// Store the ABI + bytecode to a demo.json file
-const artifact = JSON.stringify({interface, bytecode}, null, 2);
+// Store the ABI + evm to a demo.json file
+const bytecode = evm.bytecode.object;
+const artifact = JSON.stringify({abi, bytecode}, null, 2);
 fs.writeFileSync("DeployedContract.json", artifact);
 
 const provider = new HDWalletProvider(
@@ -21,8 +22,8 @@ const deploy = async () => {
 
   console.log('Attempting to deploy from account', accounts[0]);
 
-  const result = await new web3.eth.Contract(JSON.parse(interface))
-    .deploy({ data: bytecode })
+  const result = await new web3.eth.Contract(abi)
+    .deploy({ data: evm.bytecode.object })
     .send({ gas: '1000000', from: accounts[0] });
 
   console.log('Contract deployed to', result.options.address);
