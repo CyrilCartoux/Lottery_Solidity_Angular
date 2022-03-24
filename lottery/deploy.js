@@ -6,7 +6,7 @@ const { interface, bytecode } = require('./compile');
 
 // Store the ABI + bytecode to a demo.json file
 const artifact = JSON.stringify({interface, bytecode}, null, 2);
-fs.writeFileSync("Demo.json", artifact);
+fs.writeFileSync("DeployedContract.json", artifact);
 
 const provider = new HDWalletProvider(
   process.env.MNEMONIC_PHRASE,

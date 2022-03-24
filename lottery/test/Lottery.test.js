@@ -91,7 +91,17 @@ describe("Lottery Contract", () => {
     await lottery.methods.pickWinner().send({ from: accounts[0] });
     const finalBalance = await web3.eth.getBalance(accounts[1]);
     const difference = finalBalance - initialBalance;
-
+    
     assert(difference > web3.utils.toWei("1.8", "ether"));
   });
+  it("should emit an event when a player is added", async() => {
+    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei('0.02', 'ether')})
+    // lottery.events.PlayerAdded().on("data", ()=> console.log('data :>> ', data))
+  });
+  it("should return the winner ", async ()=> {
+    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei('0.02', 'ether')})
+    const winner = await lottery.methods.pickWinner().call({ from: accounts[0] });
+    console.log('winner :>> ', winner);
+    assert.equal(accounts[1], winner)
+  })
 });
