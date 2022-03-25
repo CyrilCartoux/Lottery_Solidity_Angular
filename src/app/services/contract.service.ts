@@ -8,7 +8,7 @@ import { lottery_abi, lottery_address } from 'src/abis';
 @Injectable({
   providedIn: 'root',
 })
-export class ContractService {
+export class LotteryContractService {
   private web3js: any;
   private provider: any;
   private accounts: any;
@@ -17,6 +17,7 @@ export class ContractService {
 
   public accountStatusSource = new Subject<any>();
   public transactionHash = new BehaviorSubject<any>(null);
+  public winner = new Subject<any>();
 
   constructor() {
     const providerOptions = {
@@ -85,20 +86,27 @@ export class ContractService {
     this.instantianteContract();
     await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
     const winner = await this.lotteryContract.methods.previousWinner().call(); 
+    this.winner.next(winner);
     return winner;
   }
-
+  
   public getUserBalance() {
     const balance = this.web3js.eth.getBalance(this.accounts[0]);
     return balance;
   }
-
+  
   public async transfer() {
     this.instantianteContract();
     await this.lotteryContract.methods.transfer().send({from: this.accounts[0]})
-      .on('transactionHash', ((hash: any) => {
-        this.transactionHash.next(hash)
-      }))
+    .on('transactionHash', ((hash: any) => {
+      this.transactionHash.next(hash)
+    }))
+  }
+  
+  public async getWinner() {
+    this.instantianteContract();
+    const winner = await this.lotteryContract.methods.previousWinner().call(); 
+    return winner;
   }
   
   private instantianteContract() {

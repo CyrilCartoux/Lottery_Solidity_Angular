@@ -1,4 +1,4 @@
-import { ContractService } from './../services/contract.service';
+import { LotteryContractService } from './../services/contract.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
@@ -10,8 +10,9 @@ import { Subscription } from 'rxjs';
 export class LotteryComponent implements OnInit, OnDestroy {
   accounts: Subscription | undefined;
   transactionHash: Subscription |undefined;
+  winner$: Subscription |undefined;
   userEthAccounts: string[] = [];
-  etherAmount:number = 0;
+  etherAmount:any = null;
   players: any;
   managerAddress:any;
   contractBalance: any;
@@ -20,7 +21,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
   hash: any =null;
   winner : any;
 
-  constructor(private contractService: ContractService) {}
+  constructor(private contractService: LotteryContractService) {}
   ngOnDestroy(): void {
     this.accounts?.unsubscribe();
     this.transactionHash?.unsubscribe();
@@ -28,28 +29,26 @@ export class LotteryComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     setInterval(()=> {
-      this.contractService.connectAccount().then(()=> {
-        this.contractService.getUserBalance().then((userBalance: any)=>this.userBalance=userBalance/1e18)
-      })
-
+      this.contractService.connectAccount()
+      
     }, 3000)
    
     this.accounts = this.contractService.accountStatusSource.subscribe(
-      (accounts) => {
+      async (accounts) => {
         if (accounts) {
           this.userEthAccounts = accounts;
-          this.contractService.getContractManager()
-            .then(manager => this.managerAddress = manager)
-          this.contractService.getContractBalance()
-            .then(contractBalance => this.contractBalance = contractBalance/1e18)
-          this.contractService.getPlayers()
-            .then(players => this.players = players)
+          this.managerAddress = await this.contractService.getContractManager()
+          this.contractBalance = (await this.contractService.getContractBalance())/1e18
+          this.players = await this.contractService.getPlayers()
+          this.userBalance = await this.contractService.getUserBalance()/1e18
+          this.winner = await this.contractService.getWinner()
         }
       }
     );
     this.transactionHash = this.contractService.transactionHash.subscribe(hash => {
       this.hash = hash;
     })
+    this.winner$ = this.contractService.winner.subscribe(winner => this.winner = winner);
   }
 
   onEnterLottery(amount: number) {
@@ -60,7 +59,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
     .catch(err => {
       this.transactionPending = false;
     })
-    this.etherAmount = 0;
+    this.etherAmount = null;
   }
 
   onPickWinner() {
