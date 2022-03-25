@@ -11,6 +11,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
   accounts: Subscription | undefined;
   transactionHash: Subscription |undefined;
   winner$: Subscription |undefined;
+  userBalance$: Subscription |undefined;
   userEthAccounts: string[] = [];
   etherAmount:any = null;
   players: any;
@@ -25,6 +26,8 @@ export class LotteryComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.accounts?.unsubscribe();
     this.transactionHash?.unsubscribe();
+    this.winner$?.unsubscribe();
+    this.userBalance$?.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -40,8 +43,8 @@ export class LotteryComponent implements OnInit, OnDestroy {
           this.managerAddress = await this.contractService.getContractManager()
           this.contractBalance = (await this.contractService.getContractBalance())/1e18
           this.players = await this.contractService.getPlayers()
-          this.userBalance = await this.contractService.getUserBalance()/1e18
           this.winner = await this.contractService.getWinner()
+          await this.contractService.getUserBalance();
         }
       }
     );
@@ -49,6 +52,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
       this.hash = hash;
     })
     this.winner$ = this.contractService.winner.subscribe(winner => this.winner = winner);
+    this.userBalance$ = this.contractService.userBalance.subscribe(userBalance => this.userBalance = (userBalance/1e18));
   }
 
   onEnterLottery(amount: number) {

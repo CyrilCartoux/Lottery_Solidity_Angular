@@ -18,6 +18,7 @@ export class LotteryContractService {
   public accountStatusSource = new Subject<any>();
   public transactionHash = new BehaviorSubject<any>(null);
   public winner = new Subject<any>();
+  public userBalance = new BehaviorSubject<any>(null);
 
   constructor() {
     const providerOptions = {
@@ -90,9 +91,9 @@ export class LotteryContractService {
     return winner;
   }
   
-  public getUserBalance() {
-    const balance = this.web3js.eth.getBalance(this.accounts[0]);
-    return balance;
+  public async getUserBalance() {
+    const balance = await this.web3js.eth.getBalance(this.accounts[0]);
+    this.userBalance.next(balance);
   }
   
   public async transfer() {
