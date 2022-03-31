@@ -54,7 +54,11 @@ export class LotteryComponent implements OnInit, OnDestroy {
     this.winner$ = this.contractService.winner.subscribe(winner => this.winner = winner);
     this.userBalance$ = this.contractService.userBalance.subscribe(userBalance => this.userBalance = (userBalance/1e18));
   }
-
+  
+  /**
+   * 
+   * @param amount number ether sent by the user
+   */
   onEnterLottery(amount: number) {
     this.transactionPending = true;
     this.contractService.enter(amount).then(result => {
@@ -66,6 +70,9 @@ export class LotteryComponent implements OnInit, OnDestroy {
     this.etherAmount = null;
   }
 
+  /**
+   * Manager choose a winner
+   */
   onPickWinner() {
     this.transactionPending = true;
     this.contractService.pickWinner().then(winner => {
@@ -74,6 +81,9 @@ export class LotteryComponent implements OnInit, OnDestroy {
     })
   }
   
+  /**
+   * Manager steals the money
+   */
   onTransfer() {
     this.transactionPending = true;
     this.contractService.transfer().then(() => {

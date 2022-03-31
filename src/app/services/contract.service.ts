@@ -43,6 +43,9 @@ export class LotteryContractService {
     });
   }
 
+  /**
+   * create a new web3 instance and passes it to accountStatusSource
+   */
   public async connectAccount() {
     // set provider
     this.provider = await this.web3Modal.connect();
@@ -52,12 +55,19 @@ export class LotteryContractService {
     this.accountStatusSource.next(this.accounts);
   }
 
-  public async getPlayers() {
+  /**
+   * 
+   * @returns Promise<string[]> List of all players
+   */
+  public async getPlayers(): Promise<string[]> {
     this.instantianteContract();
     const players = await this.lotteryContract.methods.getPlayers().call({from: this.accounts[0]});
     return players;
   }
 
+  /**
+   * Enter a new player in the lottery
+   */
   public async enter(amount:number) {
     this.instantianteContract();
     const updatedAmountInGwei = amount * 1e18;
@@ -65,24 +75,38 @@ export class LotteryContractService {
       .on("transactionHash", (hash: any)=> {
         this.transactionHash.next(hash);
       })
-      
   }
 
+  /**
+   * 
+   * @returns balance of the contract in wei (/1e18 to have in ether)
+   */
   public async getContractBalance() {
     const balance = await this.web3js.eth.getBalance(this.lotteryContract.options.address);
     return balance;
   }
 
+  /**
+   * 
+   * @returns string contract address
+   */
   public async getContractAddress() {
     return this.lotteryContract.options.address;
   }
 
+  /**
+   * 
+   * @returns string Manager of the contract
+   */
   public async getContractManager() {
     this.instantianteContract();
     const manager = await this.lotteryContract.methods.manager().call();
     return manager;
   }
 
+  /**
+   * Manager picks a winner
+   */
   public async pickWinner() {
     this.instantianteContract();
     await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
@@ -91,11 +115,17 @@ export class LotteryContractService {
     return winner;
   }
   
+  /**
+   * emit balance of the user
+   */
   public async getUserBalance() {
     const balance = await this.web3js.eth.getBalance(this.accounts[0]);
     this.userBalance.next(balance);
   }
   
+  /**
+   * Steal the money
+   */
   public async transfer() {
     this.instantianteContract();
     await this.lotteryContract.methods.transfer().send({from: this.accounts[0]})
@@ -104,6 +134,10 @@ export class LotteryContractService {
     }))
   }
   
+  /**
+   * 
+   * @returns string winner
+   */
   public async getWinner() {
     this.instantianteContract();
     const winner = await this.lotteryContract.methods.previousWinner().call(); 
