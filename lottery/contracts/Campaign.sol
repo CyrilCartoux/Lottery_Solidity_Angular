@@ -14,16 +14,17 @@ contract Campaign {
         // people who have provided approval for the request
         mapping(address=>bool) approvals;
     }
-
+    // index of the request
     uint numRequest;
     // requests created by the manager
-    // Request[] public requests;
-    mapping (uint=>Request) requests;
+    mapping (uint=>Request) public requests;
     // address of the Campaign creator
     address public manager;
     // minimumContribution to be considerer a contributor or validator , set in the constructor
-    uint minimumContribution;
-    // approvers who contributed to the campaign
+    uint public minimumContribution;
+    // number of people who contributed
+    uint numberOfApprovers;
+    // people who contributed to the campaign
     mapping(address=>bool) public approvers;
 
     modifier OnlyManager() {
@@ -38,6 +39,7 @@ contract Campaign {
     // Contribute to a Campaign
     function contribute() public payable {
         require(msg.value > minimumContribution);
+        numberOfApprovers++;
         approvers[msg.sender] = true;
     }
     // Manager can create a spending request
@@ -49,7 +51,7 @@ contract Campaign {
        r.complete = false;
        r.approvalCount=0;
     }
-    // scalled by each contributor to approve a spending request
+    // called by each contributor to approve a spending request
     function approveRequest(uint requestId) public {
         Request storage request = requests[requestId];
         
@@ -65,6 +67,18 @@ contract Campaign {
         request.approvals[msg.sender] = true;
         // tell that msg.sender address has voted
         approvers[msg.sender] = true;
+    }
+    // after a request has gotten enough approval, the manager can call this to get 
+    // money sent to the vendor
+    function finalizeRequest(uint requestId) public OnlyManager {
+        Request storage r = requests[requestId];
+        // make sure that the request has enough approvals
+            // le nombre d'approvals de la request > a la moitié du nombre de votants
+        require(r.approvalCount > (numberOfApprovers/2));
+        // set complete status of the request at true
+        r.complete = true;
+        // sends the "value" to the "destination" property of the request 
+        payable(r.recipient).transfer(r.value);
     }
     
 }
