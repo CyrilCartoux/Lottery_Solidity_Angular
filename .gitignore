@@ -47,5 +47,6 @@ ethereum/contracts/lottery/.env
 ethereum/contracts/lottery/compiledContract.json
 ethereum/contracts/lottery/node_modules/.bin/_mocha
 ethereum/contracts/lottery/contracts/artifacts
+ethereum/contracts/kickstarter/contracts/artifacts
 ethereum/contracts/artifacts
 ethereum/node_modules

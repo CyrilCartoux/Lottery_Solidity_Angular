@@ -18,7 +18,7 @@ contract CampaignFactory {
 
     // Creates a new campaign
     function createCampaign(string memory lib, uint minimum) public {
-        Campaign newCampaign = new Campaign(lib, minimum);
+        Campaign newCampaign = new Campaign(lib, minimum, msg.sender);
         campaigns[campaignId] = newCampaign;
         campaignsOwners[campaignId] = msg.sender;
         campaignId++;

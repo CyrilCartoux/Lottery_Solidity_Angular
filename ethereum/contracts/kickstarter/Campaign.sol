@@ -14,6 +14,7 @@ contract Campaign {
         // people who have provided approval for the request
         mapping(address=>bool) approvals;
     }
+    string libelle;
     // index of the request
     uint numRequest;
     // requests created by the manager
@@ -32,9 +33,10 @@ contract Campaign {
         _;
     }
 
-    constructor(uint minimum) {
-        manager = msg.sender;
+    constructor(string memory lib,uint minimum, address creator) {
+        manager = creator;
         minimumContribution = minimum;
+        libelle = lib;
     }
     // Contribute to a Campaign
     function contribute() public payable {
@@ -72,6 +74,8 @@ contract Campaign {
     // money sent to the vendor
     function finalizeRequest(uint requestId) public OnlyManager {
         Request storage r = requests[requestId];
+        // make sure that the request is not already complete
+        require(!r.complete);
         // make sure that the request has enough approvals
             // le nombre d'approvals de la request > a la moitié du nombre de votants
         require(r.approvalCount > (numberOfApprovers/2));
