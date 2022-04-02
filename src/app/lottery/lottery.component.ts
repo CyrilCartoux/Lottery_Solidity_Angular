@@ -1,4 +1,4 @@
-import { LotteryContractService } from './../services/contract.service';
+import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
 
@@ -21,6 +21,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
   transactionPending: boolean = false;
   hash: any =null;
   winner : any;
+  enteredLottery: boolean = false;
 
   constructor(private contractService: LotteryContractService) {}
   ngOnDestroy(): void {
@@ -61,8 +62,11 @@ export class LotteryComponent implements OnInit, OnDestroy {
    */
   onEnterLottery(amount: number) {
     this.transactionPending = true;
+    this.enteredLottery = false;
     this.contractService.enter(amount).then(result => {
       this.transactionPending = false;
+      this.enteredLottery = true;
+      setTimeout(()=> {this.enteredLottery = false}, 5000);
     })
     .catch(err => {
       this.transactionPending = false;

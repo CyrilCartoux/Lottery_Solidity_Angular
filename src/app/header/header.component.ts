@@ -1,5 +1,5 @@
 import { Subscription } from 'rxjs';
-import { LotteryContractService } from './../services/contract.service';
+import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 
 @Component({
