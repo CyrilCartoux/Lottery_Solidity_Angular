@@ -27,6 +27,7 @@ const deploy = async () => {
     .send({ gas: '1000000', from: accounts[0] });
 
   console.log('Contract LOTTERY deployed to', result.options.address);
+  fs.appendFileSync('DeployedLotteryContract.json', "'address:' "+result.options.address,"UTF8", {'flag':'a+'});
   provider.engine.stop();
 };
 deploy();

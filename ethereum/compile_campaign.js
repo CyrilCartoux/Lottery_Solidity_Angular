@@ -28,10 +28,10 @@ const input = {
    
   try {
     const { abi, evm } = JSON.parse(solc.compile(JSON.stringify(input))).contracts[
-      'CampaignFactory.sol'
-    ].CampaignFactory;
+      'Campaign.sol'
+    ].Campaign;
     const artifact = JSON.stringify({abi, evm}, null, 2);
-    fs.writeFileSync("./build/compiledKickstarterContract.json", artifact);
+    fs.writeFileSync("./build/compiledCampaignContract.json", artifact);
   
     module.exports = { abi, evm };
 

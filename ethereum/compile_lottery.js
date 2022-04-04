@@ -25,8 +25,8 @@ const input = {
     const { abi, evm } = JSON.parse(solc.compile(JSON.stringify(input))).contracts[
       'Lottery.sol'
     ].Lottery;
-    const artifact = JSON.stringify({abi}, null, 2);
-    fs.writeFileSync("compiledLotteryContract.json", artifact);
+    const artifact = JSON.stringify({abi, evm}, null, 2);
+    fs.writeFileSync("./build/compiledLotteryContract.json", artifact);
   
     module.exports = { abi, evm };
 
