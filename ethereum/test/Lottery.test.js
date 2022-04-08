@@ -2,6 +2,7 @@ const assert = require("assert");
 const ganache = require("ganache-cli");
 const Web3 = require("web3");
 const web3 = new Web3(ganache.provider());
+const {shouldThrow} = require("./utils/helper");
 
 const { abi, evm } = require("../compile_lottery");
 
@@ -59,26 +60,14 @@ describe("Lottery Contract", () => {
   });
 
   it("requires a minimum amount of ether to enter", async () => {
-    try {
-      await lottery.methods.enter().send({
-        from: accounts[1],
-        value: 0,
-      });
-      assert(false);
-    } catch (err) {
-      assert(err);
-    }
+    await shouldThrow(lottery.methods.enter().send({
+      from: accounts[1],
+      value: 0,
+    }))
   });
 
   it("only manager can call pickWinner", async () => {
-    try {
-      await lottery.methods.pickWinner().send({
-        from: accounts[1],
-      });
-      assert(false);
-    } catch (err) {
-      assert(err);
-    }
+    await shouldThrow(lottery.methods.pickWinner().send({from: accounts[1]}))
   });
 
   it("sends money to the winner and resets the players array", async () => {
