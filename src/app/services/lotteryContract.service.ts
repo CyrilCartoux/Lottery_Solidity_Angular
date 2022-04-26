@@ -1,3 +1,4 @@
+import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
 import WalletConnectProvider from '@walletconnect/web3-provider';
 import { BehaviorSubject, Subject } from 'rxjs';
@@ -14,6 +15,7 @@ export class LotteryContractService {
   private accounts: any;
   web3Modal: any;
   private lotteryContract: any;
+  ethUtils: typeof EthUtils = EthUtils;
 
   public accountStatusSource = new Subject<any>();
   public transactionHash = new BehaviorSubject<any>(null);
@@ -68,9 +70,9 @@ export class LotteryContractService {
   /**
    * Enter a new player in the lottery
    */
-  public async enter(amount:number) {
+  public async enter(amount:number): Promise<any> {
     this.instantianteContract();
-    const updatedAmountInGwei = amount * 1e18;
+    const updatedAmountInGwei = this.ethUtils.fromEthToWei(amount);
     return await this.lotteryContract.methods.enter().send({from: this.accounts[0], value: updatedAmountInGwei})
       .on("transactionHash", (hash: any)=> {
         this.transactionHash.next(hash);
@@ -81,7 +83,7 @@ export class LotteryContractService {
    * 
    * @returns balance of the contract in wei (/1e18 to have in ether)
    */
-  public async getContractBalance() {
+  public async getContractBalance(): Promise<number> {
     const balance = await this.web3js.eth.getBalance(this.lotteryContract.options.address);
     return balance;
   }
@@ -90,7 +92,7 @@ export class LotteryContractService {
    * 
    * @returns string contract address
    */
-  public async getContractAddress() {
+  public getContractAddress(): string {
     return this.lotteryContract.options.address;
   }
 
@@ -98,7 +100,7 @@ export class LotteryContractService {
    * 
    * @returns string Manager of the contract
    */
-  public async getContractManager() {
+  public async getContractManager(): Promise<string> {
     this.instantianteContract();
     const manager = await this.lotteryContract.methods.manager().call();
     return manager;
@@ -107,7 +109,7 @@ export class LotteryContractService {
   /**
    * Manager picks a winner
    */
-  public async pickWinner() {
+  public async pickWinner():Promise<string> {
     this.instantianteContract();
     await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
     const winner = await this.lotteryContract.methods.previousWinner().call(); 
@@ -118,7 +120,7 @@ export class LotteryContractService {
   /**
    * emit balance of the user
    */
-  public async getUserBalance() {
+  public async getUserBalance(): Promise<void> {
     const balance = await this.web3js.eth.getBalance(this.accounts[0]);
     this.userBalance.next(balance);
   }
@@ -126,7 +128,7 @@ export class LotteryContractService {
   /**
    * Steal the money
    */
-  public async transfer() {
+  public async transfer(): Promise<void> {
     this.instantianteContract();
     await this.lotteryContract.methods.transfer().send({from: this.accounts[0]})
     .on('transactionHash', ((hash: any) => {
@@ -138,13 +140,13 @@ export class LotteryContractService {
    * 
    * @returns string winner
    */
-  public async getWinner() {
+  public async getWinner(): Promise<string> {
     this.instantianteContract();
     const winner = await this.lotteryContract.methods.previousWinner().call(); 
     return winner;
   }
   
-  private instantianteContract() {
+  private instantianteContract(): void {
     this.lotteryContract = new this.web3js.eth.Contract(lottery_abi, lottery_address);
   }
 }

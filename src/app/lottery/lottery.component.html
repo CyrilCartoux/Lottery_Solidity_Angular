@@ -53,10 +53,6 @@
                 </li>
             </ul>
         </div>
-        <div *ngIf="(players.length==0) && (managerAddress != userEthAccounts[0])">
-            <p>There is currently no player inside the lottery</p>
-            <p>Try your luck and enter with min. 0.01 ether to win </p>
-        </div>
 
         <button type="button" (click)="onPickWinner()" *ngIf="((players)&&(players.length >0) && (managerAddress == userEthAccounts[0]))" class="btn btn-success" style="margin-right: 15px;">Pick a lucky winner</button>
         <button type="button" (click)="onTransfer()" *ngIf="((players)&&(players.length >0)&&(managerAddress == userEthAccounts[0]))" class="btn btn-danger">Steal the money </button>

@@ -1,3 +1,4 @@
+import { EthUtils } from './../utils/eth-utils';
 import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
 import { Subscription } from 'rxjs';
@@ -8,10 +9,7 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./lottery.component.less'],
 })
 export class LotteryComponent implements OnInit, OnDestroy {
-  accounts: Subscription | undefined;
-  transactionHash: Subscription |undefined;
-  winner$: Subscription |undefined;
-  userBalance$: Subscription |undefined;
+  subscriptions:Subscription= new Subscription();
   userEthAccounts: string[] = [];
   etherAmount:any = null;
   players: any;
@@ -22,13 +20,11 @@ export class LotteryComponent implements OnInit, OnDestroy {
   hash: any =null;
   winner : any;
   enteredLottery: boolean = false;
+  ethUtils: typeof EthUtils = EthUtils;
 
   constructor(private contractService: LotteryContractService) {}
   ngOnDestroy(): void {
-    this.accounts?.unsubscribe();
-    this.transactionHash?.unsubscribe();
-    this.winner$?.unsubscribe();
-    this.userBalance$?.unsubscribe();
+    this.subscriptions.unsubscribe();
   }
 
   ngOnInit(): void {
@@ -37,23 +33,23 @@ export class LotteryComponent implements OnInit, OnDestroy {
       
     }, 3000)
    
-    this.accounts = this.contractService.accountStatusSource.subscribe(
+    this.subscriptions.add(this.contractService.accountStatusSource.subscribe(
       async (accounts) => {
         if (accounts) {
           this.userEthAccounts = accounts;
           this.managerAddress = await this.contractService.getContractManager()
-          this.contractBalance = (await this.contractService.getContractBalance())/1e18
+          this.contractBalance = this.ethUtils.fromWeiToEth(await this.contractService.getContractBalance());
           this.players = await this.contractService.getPlayers()
           this.winner = await this.contractService.getWinner()
           await this.contractService.getUserBalance();
         }
       }
-    );
-    this.transactionHash = this.contractService.transactionHash.subscribe(hash => {
+    ));
+    this.subscriptions.add(this.contractService.transactionHash.subscribe(hash => {
       this.hash = hash;
-    })
-    this.winner$ = this.contractService.winner.subscribe(winner => this.winner = winner);
-    this.userBalance$ = this.contractService.userBalance.subscribe(userBalance => this.userBalance = (userBalance/1e18));
+    }))
+    this.subscriptions.add(this.contractService.winner.subscribe(winner => this.winner = winner));
+    this.subscriptions.add(this.contractService.userBalance.subscribe(userBalance => this.userBalance = (this.ethUtils.fromWeiToEth(userBalance))));
   }
   
   /**
