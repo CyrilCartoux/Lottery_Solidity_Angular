@@ -17,7 +17,7 @@
             <h2>
                 Current prize pool is : {{contractBalance ? contractBalance : 0}} ether 
             </h2>
-            <h4 class="mt-4" *ngIf="enteredLottery">Congratulations ! You are now registered to win the prize pool</h4>
+            <h4 class="mt-4" *ngIf="enteredLottery">Congratulations {{newPlayerAdded}} ! You are now registered to win the prize pool</h4>
         </div>
         <div class="mb-5" *ngIf="managerAddress == userEthAccounts[0]">
             <p class="mt-4">You are the manager of this contract ! You are only able to pick a winner.</p>

@@ -1,95 +1,79 @@
 import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
-import WalletConnectProvider from '@walletconnect/web3-provider';
 import { BehaviorSubject, Subject } from 'rxjs';
-import Web3 from 'web3';
-import Web3Modal from 'web3modal';
-import { lottery_abi, lottery_address } from 'src/abis_lottery';
+import web3 from './web3';
+import lotteryContract from './lottery_contract';
 
 @Injectable({
   providedIn: 'root',
 })
 export class LotteryContractService {
   private web3js: any;
-  private provider: any;
   private accounts: any;
   web3Modal: any;
   private lotteryContract: any;
   ethUtils: typeof EthUtils = EthUtils;
 
-  public accountStatusSource = new Subject<any>();
-  public transactionHash = new BehaviorSubject<any>(null);
-  public winner = new Subject<any>();
-  public userBalance = new BehaviorSubject<any>(null);
+  private _accountStatusSource = new BehaviorSubject<any>(null);
+  private _transactionHash = new BehaviorSubject<any>(null);
+  private _winner = new BehaviorSubject<any>(null);
+  private _userBalance = new BehaviorSubject<any>(null);
+  private _eventNewPlayer = new BehaviorSubject<any>(null);
+
+  accountStatusSource$ = this._accountStatusSource.asObservable();
+  transactionHash$ = this._transactionHash.asObservable();
+  winner$ = this._winner.asObservable();
+  userBalance$ = this._userBalance.asObservable();
+  eventNewPlayer$ = this._eventNewPlayer.asObservable();
 
   constructor() {
-    const providerOptions = {
-      walletconnect: {
-        package: WalletConnectProvider,
-        options: {
-          infuraId: 'ef7e07ecb9a94f5d9de70961f16b77d6',
-        },
-      },
-    };
-    this.web3Modal = new Web3Modal({
-      network: 'rinkeby',
-      cacheProvider: true,
-      providerOptions: providerOptions,
-      theme: {
-        background: 'rgb(39, 49, 56)',
-        main: 'rgb(199, 199, 199)',
-        secondary: 'rgb(136, 136, 136)',
-        border: 'rgba(195, 195, 195, 0.14)',
-        hover: 'rgb(16, 26, 32)',
-      },
-    });
+    // create web3 instance
+    this.web3js = web3;
+    this.lotteryContract = lotteryContract;
   }
 
   /**
-   * create a new web3 instance and passes it to accountStatusSource
+   * Load connected account
    */
   public async connectAccount() {
-    // set provider
-    this.provider = await this.web3Modal.connect();
-    // create web3 instance
-    this.web3js = new Web3(this.provider);
     this.accounts = await this.web3js.eth.getAccounts();
-    this.accountStatusSource.next(this.accounts);
+    this._accountStatusSource.next(this.accounts);
   }
 
   /**
-   * 
    * @returns Promise<string[]> List of all players
    */
   public async getPlayers(): Promise<string[]> {
-    this.instantianteContract();
-    const players = await this.lotteryContract.methods.getPlayers().call({from: this.accounts[0]});
+    const players = await this.lotteryContract.methods
+      .getPlayers()
+      .call({ from: this.accounts[0] });
     return players;
   }
 
   /**
    * Enter a new player in the lottery
    */
-  public async enter(amount:number): Promise<any> {
-    this.instantianteContract();
+  public async enter(amount: number): Promise<any> {
     const updatedAmountInGwei = this.ethUtils.fromEthToWei(amount);
-    return await this.lotteryContract.methods.enter().send({from: this.accounts[0], value: updatedAmountInGwei})
-      .on("transactionHash", (hash: any)=> {
-        this.transactionHash.next(hash);
-      })
+    return await this.lotteryContract.methods
+      .enter()
+      .send({ from: this.accounts[0], value: updatedAmountInGwei })
+      .on('transactionHash', (hash: any) => {
+        this._transactionHash.next(hash);
+      });
   }
 
   /**
-   * 
    * @returns balance of the contract in wei (/1e18 to have in ether)
    */
   public async getContractBalance(): Promise<number> {
-    const balance = await this.web3js.eth.getBalance(this.lotteryContract.options.address);
+    const balance = await this.web3js.eth.getBalance(
+      this.lotteryContract.options.address
+    );
     return balance;
   }
 
   /**
-   * 
    * @returns string contract address
    */
   public getContractAddress(): string {
@@ -97,11 +81,9 @@ export class LotteryContractService {
   }
 
   /**
-   * 
    * @returns string Manager of the contract
    */
   public async getContractManager(): Promise<string> {
-    this.instantianteContract();
     const manager = await this.lotteryContract.methods.manager().call();
     return manager;
   }
@@ -109,44 +91,62 @@ export class LotteryContractService {
   /**
    * Manager picks a winner
    */
-  public async pickWinner():Promise<string> {
-    this.instantianteContract();
-    await this.lotteryContract.methods.pickWinner().send({from:this.accounts[0]})
-    const winner = await this.lotteryContract.methods.previousWinner().call(); 
-    this.winner.next(winner);
+  public async pickWinner(): Promise<string> {
+    await this.lotteryContract.methods
+      .pickWinner()
+      .send({ from: this.accounts[0] })
+      .on('transactionHash', (hash: any) => {
+        this._transactionHash.next(hash);
+      });
+    const winner = await this.lotteryContract.methods.previousWinner().call();
+    this._winner.next(winner);
     return winner;
   }
-  
+
   /**
    * emit balance of the user
    */
   public async getUserBalance(): Promise<void> {
     const balance = await this.web3js.eth.getBalance(this.accounts[0]);
-    this.userBalance.next(balance);
+    this._userBalance.next(balance);
   }
-  
+
   /**
    * Steal the money
    */
   public async transfer(): Promise<void> {
-    this.instantianteContract();
-    await this.lotteryContract.methods.transfer().send({from: this.accounts[0]})
-    .on('transactionHash', ((hash: any) => {
-      this.transactionHash.next(hash)
-    }))
+    await this.lotteryContract.methods
+      .transfer()
+      .send({ from: this.accounts[0] })
+      .on('transactionHash', (hash: any) => {
+        this._transactionHash.next(hash);
+      });
   }
-  
+
   /**
-   * 
    * @returns string winner
    */
   public async getWinner(): Promise<string> {
-    this.instantianteContract();
-    const winner = await this.lotteryContract.methods.previousWinner().call(); 
+    const winner = await this.lotteryContract.methods.previousWinner().call();
     return winner;
   }
-  
-  private instantianteContract(): void {
-    this.lotteryContract = new this.web3js.eth.Contract(lottery_abi, lottery_address);
+
+  public handleAccountChange() {
+    if (window && window.ethereum) {
+      window.ethereum.on('accountsChanged', (accounts: Array<string>) => {
+        this.accounts = accounts;
+        this._accountStatusSource.next(this.accounts);
+      });
+    }
+  }
+
+  public filterEvents() {
+    this.lotteryContract.events.PlayerAdded(
+      { filter: {} },
+      async (err: any, event: any) => {
+        if (err) console.log(err);
+        this._eventNewPlayer.next(event.returnValues._address);
+      }
+    );
   }
 }
