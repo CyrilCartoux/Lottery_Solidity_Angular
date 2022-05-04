@@ -34,7 +34,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
     }, 3000);
 
     this.subscriptions.add(
-      this.contractService.accountStatusSource$.subscribe(async (accounts) => {
+      this.contractService.connectedAccount$.subscribe(async (accounts) => {
         if (accounts) {
           this.userEthAccounts = accounts;
           this.managerAddress = await this.contractService.getContractManager();

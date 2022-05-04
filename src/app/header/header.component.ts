@@ -19,7 +19,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    this.lotteryContractService.accountStatusSource$.subscribe(accounts=> this.accounts= accounts);
+    this.lotteryContractService.connectedAccount$.subscribe(accounts=> this.accounts= accounts);
     this.userBalance$ = this.lotteryContractService.userBalance$.subscribe(userBalance => this.userBalance = (this.ethUtils.fromWeiToEth(userBalance)));
   }
 

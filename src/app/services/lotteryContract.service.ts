@@ -14,13 +14,13 @@ export class LotteryContractService {
   private lotteryContract: any;
   ethUtils: typeof EthUtils = EthUtils;
 
-  private _accountStatusSource = new BehaviorSubject<any>(null);
+  private _connectedAccount = new BehaviorSubject<any>(null);
   private _transactionHash = new BehaviorSubject<any>(null);
   private _winner = new BehaviorSubject<any>(null);
   private _userBalance = new BehaviorSubject<any>(null);
   private _eventNewPlayer = new BehaviorSubject<any>(null);
 
-  accountStatusSource$ = this._accountStatusSource.asObservable();
+  connectedAccount$ = this._connectedAccount.asObservable();
   transactionHash$ = this._transactionHash.asObservable();
   winner$ = this._winner.asObservable();
   userBalance$ = this._userBalance.asObservable();
@@ -37,7 +37,7 @@ export class LotteryContractService {
    */
   public async connectAccount() {
     this.accounts = await this.web3js.eth.getAccounts();
-    this._accountStatusSource.next(this.accounts);
+    this._connectedAccount.next(this.accounts);
   }
 
   /**
@@ -135,7 +135,7 @@ export class LotteryContractService {
     if (window && window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts: Array<string>) => {
         this.accounts = accounts;
-        this._accountStatusSource.next(this.accounts);
+        this._connectedAccount.next(this.accounts);
       });
     }
   }
