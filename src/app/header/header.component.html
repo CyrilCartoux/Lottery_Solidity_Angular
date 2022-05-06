@@ -17,7 +17,7 @@
       <div class="text-end">
           <div><img src="https://d33wubrfki0l68.cloudfront.net/fcd4ecd90386aeb50a235ddc4f0063cfbb8a7b66/4295e/static/bfc04ac72981166c740b189463e1f74c/40129/eth-diamond-black-white.jpg" alt="mdo" width="32" height="32" class="rounded-circle float-lg-start">
           </div>
-          <div style="display: flex; flex-direction: column; height: 40px;align-items: flex-start;">
+          <div *ngIf="accounts && accounts.length > 0" style="display: flex; flex-direction: column; height: 40px;align-items: flex-start;">
             <p class="small mb-0">{{accounts[0]}}</p>
             <p class="small" *ngIf="userBalance"> {{userBalance}} ether</p>
           </div>

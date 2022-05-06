@@ -48,11 +48,14 @@ export class LotteryContractService {
    * @returns Promise<string[]> List of all players
    */
   public getPlayers(): Observable<string> {
-    return from<string[]>(
-      this.lotteryContract?.methods
-        .getPlayers()
-        .call({ from: this.accounts[0] })
-    );
+    if(this.accounts && this.accounts.length > 0) {
+      return from<string[]>(
+        this.lotteryContract?.methods
+          .getPlayers()
+          .call({ from: this.accounts[0] })
+      );
+    }
+    return of('');
   }
 
   /**
@@ -123,9 +126,11 @@ export class LotteryContractService {
    * emit balance of the user
    */
   public async getUserBalance() {
-    from(this.web3js.eth.getBalance(this.accounts[0]))
-      .pipe(take(1))
-      .subscribe((bal) => this._userBalance.next(bal));
+    if(this.accounts && this.accounts.length > 0) {
+      from(this.web3js.eth.getBalance(this.accounts[0]))
+        .pipe(take(1))
+        .subscribe((bal) => this._userBalance.next(bal));
+    }
   }
 
   /**
