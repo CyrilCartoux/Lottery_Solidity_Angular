@@ -34,16 +34,33 @@ export class LotteryComponent implements OnInit, OnDestroy {
     }, 3000);
 
     this.subscriptions.add(
-      this.contractService.connectedAccount$.subscribe(async (accounts) => {
+      this.contractService.connectedAccount$.subscribe((accounts) => {
         if (accounts) {
           this.userEthAccounts = accounts;
-          this.managerAddress = await this.contractService.getContractManager();
-          this.contractBalance = this.ethUtils.fromWeiToEth(
-            await this.contractService.getContractBalance()
+          this.contractService.getUserBalance();
+          this.subscriptions.add(
+            this.contractService
+              .getContractManager()
+              .subscribe((manager) => (this.managerAddress = manager))
           );
-          this.players = await this.contractService.getPlayers();
-          this.winner = await this.contractService.getWinner();
-          await this.contractService.getUserBalance();
+          this.subscriptions.add(
+            this.contractService
+              .getContractBalance()
+              .subscribe(
+                (bal: number) =>
+                  (this.contractBalance = this.ethUtils.fromWeiToEth(bal))
+              )
+          );
+          this.subscriptions.add(
+            this.contractService
+              .getPlayers()
+              .subscribe((player) => (this.players = player))
+          );
+          this.subscriptions.add(
+            this.contractService
+              .getWinner()
+              .subscribe((winner) => (this.winner = winner))
+          );
         }
       })
     );
@@ -71,24 +88,20 @@ export class LotteryComponent implements OnInit, OnDestroy {
   }
 
   /**
-   *
    * @param amount number ether sent by the user
    */
   onEnterLottery(amount: number) {
     this.transactionPending = true;
     this.enteredLottery = false;
-    this.contractService
-      .enter(amount)
-      .then((result) => {
+    this.contractService.enter(amount).subscribe((result) => {
+      if (result) {
         this.transactionPending = false;
         this.enteredLottery = true;
         setTimeout(() => {
-          this.enteredLottery = false;
+          !this.enteredLottery;
         }, 10000);
-      })
-      .catch((err) => {
-        this.transactionPending = false;
-      });
+      }
+    });
     this.etherAmount = null;
   }
 
@@ -97,7 +110,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
    */
   onPickWinner() {
     this.transactionPending = true;
-    this.contractService.pickWinner().then((winner) => {
+    this.contractService.pickWinner().subscribe((winner) => {
       this.transactionPending = false;
       this.winner = winner;
     });
@@ -108,7 +121,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
    */
   onTransfer() {
     this.transactionPending = true;
-    this.contractService.transfer().then(() => {
+    this.contractService.transfer().subscribe(() => {
       this.transactionPending = false;
     });
   }

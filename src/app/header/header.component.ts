@@ -6,25 +6,30 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
-  styleUrls: ['./header.component.less']
+  styleUrls: ['./header.component.less'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-
-  userBalance$ : Subscription | undefined;
+  userBalance$: Subscription | undefined;
+  connectedAccount$: Subscription | undefined;
   accounts: string[] = [];
   userBalance: number | undefined;
   ethUtils: typeof EthUtils = EthUtils;
 
-  constructor(private lotteryContractService:LotteryContractService) {
-  }
+  constructor(private lotteryContractService: LotteryContractService) {}
 
   async ngOnInit(): Promise<void> {
-    this.lotteryContractService.connectedAccount$.subscribe(accounts=> this.accounts= accounts);
-    this.userBalance$ = this.lotteryContractService.userBalance$.subscribe(userBalance => this.userBalance = (this.ethUtils.fromWeiToEth(userBalance)));
+    this.connectedAccount$ =
+      this.lotteryContractService.connectedAccount$.subscribe(
+        (accounts) => (this.accounts = accounts)
+      );
+    this.userBalance$ = this.lotteryContractService.userBalance$.subscribe(
+      (userBalance) =>
+        (this.userBalance = this.ethUtils.fromWeiToEth(userBalance))
+    );
   }
 
   ngOnDestroy(): void {
-      this.userBalance$?.unsubscribe();
+    this.connectedAccount$?.unsubscribe();
+    this.userBalance$?.unsubscribe();
   }
-
 }

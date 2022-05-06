@@ -1,6 +1,6 @@
 import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Subject } from 'rxjs';
+import { BehaviorSubject, catchError, from, Observable, of, take } from 'rxjs';
 import web3 from './web3';
 import lotteryContract from './lottery_contract';
 
@@ -36,41 +36,50 @@ export class LotteryContractService {
    * Load connected account
    */
   public async connectAccount() {
-    this.accounts = await this.web3js.eth.getAccounts();
-    this._connectedAccount.next(this.accounts);
+    from(this.web3js.eth.getAccounts())
+      .pipe(take(1))
+      .subscribe((account) => {
+        this._connectedAccount.next(account);
+        this.accounts = account;
+      });
   }
 
   /**
    * @returns Promise<string[]> List of all players
    */
-  public async getPlayers(): Promise<string[]> {
-    const players = await this.lotteryContract.methods
-      .getPlayers()
-      .call({ from: this.accounts[0] });
-    return players;
+  public getPlayers(): Observable<string> {
+    return from<string[]>(
+      this.lotteryContract?.methods
+        .getPlayers()
+        .call({ from: this.accounts[0] })
+    );
   }
 
   /**
    * Enter a new player in the lottery
    */
-  public async enter(amount: number): Promise<any> {
+  public enter(amount: number): Observable<any> {
     const updatedAmountInGwei = this.ethUtils.fromEthToWei(amount);
-    return await this.lotteryContract.methods
-      .enter()
-      .send({ from: this.accounts[0], value: updatedAmountInGwei })
-      .on('transactionHash', (hash: any) => {
-        this._transactionHash.next(hash);
-      });
+    return from(
+      this.lotteryContract?.methods
+        .enter()
+        .send({ from: this.accounts[0], value: updatedAmountInGwei })
+        .on('transactionHash', (hash: any) => {
+          this._transactionHash.next(hash);
+        })
+    ).pipe(
+      take(1),
+      catchError((err) => of(null))
+    );
   }
 
   /**
    * @returns balance of the contract in wei (/1e18 to have in ether)
    */
-  public async getContractBalance(): Promise<number> {
-    const balance = await this.web3js.eth.getBalance(
-      this.lotteryContract.options.address
+  public getContractBalance(): Observable<any> {
+    return from(
+      this.web3js.eth.getBalance(this.lotteryContract.options.address)
     );
-    return balance;
   }
 
   /**
@@ -83,52 +92,66 @@ export class LotteryContractService {
   /**
    * @returns string Manager of the contract
    */
-  public async getContractManager(): Promise<string> {
-    const manager = await this.lotteryContract.methods.manager().call();
-    return manager;
+  public getContractManager(): Observable<string> {
+    return from<string>(this.lotteryContract.methods.manager().call());
   }
 
   /**
    * Manager picks a winner
    */
-  public async pickWinner(): Promise<string> {
-    await this.lotteryContract.methods
-      .pickWinner()
-      .send({ from: this.accounts[0] })
-      .on('transactionHash', (hash: any) => {
-        this._transactionHash.next(hash);
-      });
-    const winner = await this.lotteryContract.methods.previousWinner().call();
-    this._winner.next(winner);
-    return winner;
+  public pickWinner(): Observable<any> {
+    return from(
+      this.lotteryContract.methods
+        .pickWinner()
+        .send({ from: this.accounts[0] })
+        .on('transactionHash', (hash: string) => {
+          this._transactionHash.next(hash);
+        })
+    ).pipe(
+      take(1),
+      catchError((err) => {
+        return of(null);
+      })
+    );
+    // A REVOIR ( passer par EVENT WinnerPicked )
+    // const winner = await this.lotteryContract.methods.previousWinner().call();
+    // this._winner.next(winner);
+    // return winner;
   }
 
   /**
    * emit balance of the user
    */
-  public async getUserBalance(): Promise<void> {
-    const balance = await this.web3js.eth.getBalance(this.accounts[0]);
-    this._userBalance.next(balance);
+  public async getUserBalance() {
+    from(this.web3js.eth.getBalance(this.accounts[0]))
+      .pipe(take(1))
+      .subscribe((bal) => this._userBalance.next(bal));
   }
 
   /**
    * Steal the money
    */
-  public async transfer(): Promise<void> {
-    await this.lotteryContract.methods
-      .transfer()
-      .send({ from: this.accounts[0] })
-      .on('transactionHash', (hash: any) => {
-        this._transactionHash.next(hash);
-      });
+  public transfer() {
+    return from(
+      this.lotteryContract.methods
+        .transfer()
+        .send({ from: this.accounts[0] })
+        .on('transactionHash', (hash: any) => {
+          this._transactionHash.next(hash);
+        })
+    ).pipe(
+      take(1),
+      catchError((err) => {
+        return of(null);
+      })
+    );
   }
 
   /**
    * @returns string winner
    */
-  public async getWinner(): Promise<string> {
-    const winner = await this.lotteryContract.methods.previousWinner().call();
-    return winner;
+  public getWinner(): Observable<string> {
+    return from<string>(this.lotteryContract.methods.previousWinner().call());
   }
 
   public handleAccountChange() {
