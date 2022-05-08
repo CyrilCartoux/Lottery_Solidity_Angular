@@ -9,6 +9,7 @@ contract Lottery {
 
     // Events
     event PlayerAdded(address _address);
+    event WinnerPicked(address _address, uint _ethWon);
 
     // Only owner can call 
     modifier onlyOwner() {
@@ -45,8 +46,10 @@ contract Lottery {
     function pickWinner() public onlyOwner {
         uint index = random();
         previousWinner = players[index];
+        uint balance = address(this).balance;
 
         payable(players[index]).transfer(address(this).balance);
+        emit WinnerPicked(players[index], balance);
         players = new address payable[](0);
     }
     // Generate a random number and returns it

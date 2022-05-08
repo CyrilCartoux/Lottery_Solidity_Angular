@@ -83,6 +83,34 @@ describe("Lottery Contract", () => {
     
     assert(difference > web3.utils.toWei("1.8", "ether"));
   });
+  it("should emit an event when a player is added", async() => {
+    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei("1", "ether")});
+    lottery.events.PlayerAdded(
+      { filter: {} },
+      async (err, event) => {
+        if (err) return false;
+        assert.ok(event.returnValues._address);
+      }
+    );
+  });
+  it("should emit an event when a winner has been picked", async() => {
+    await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei("1", "ether")});
+    const contractBalance = await web3.eth.getBalance(lottery.options.address);
+    const initialWinnerBalance = await web3.eth.getBalance(accounts[1]);
+    await lottery.methods.pickWinner().send({from: accounts[0]});
+    const finalWinnerBalance = await web3.eth.getBalance(accounts[1]);
+    lottery.events.WinnerPicked(
+      {filter: {}},
+      async(err, event) => {
+        if(err) return false;
+        // ethwon must be equal to contract balance
+        assert(finalWinnerBalance - initialWinnerBalance == event.returnValues._ethWon);
+        assert.ok(event.returnValues._address);
+        assert(event.returnValues._address == accounts[1]);
+      }
+    )
+  });
+  
   it("should transfer contract balance to manager ;-) ", async ()=> {
     const initialBalance = await web3.eth.getBalance(accounts[0]);
     await lottery.methods.enter().send({from: accounts[1], value: web3.utils.toWei('2', 'ether')})
