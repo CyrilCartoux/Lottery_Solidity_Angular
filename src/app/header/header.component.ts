@@ -17,7 +17,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   constructor(private lotteryContractService: LotteryContractService) {}
 
-  async ngOnInit(): Promise<void> {
+  ngOnInit() {
     this.connectedAccount$ =
       this.lotteryContractService.connectedAccount$.subscribe(
         (accounts) => (this.accounts = accounts)

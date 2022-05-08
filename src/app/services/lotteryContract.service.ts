@@ -30,17 +30,19 @@ export class LotteryContractService {
     // create web3 instance
     this.web3js = web3;
     this.lotteryContract = lotteryContract;
+    this.handleAccountChange();
+    this.filterEvents();
   }
 
   /**
    * Load connected account
    */
-  public async connectAccount() {
+  public connectAccount() {
     from(this.web3js.eth.getAccounts())
       .pipe(take(1))
       .subscribe((account) => {
-        this._connectedAccount.next(account);
         this.accounts = account;
+        this._connectedAccount.next(account);
       });
   }
 
@@ -125,7 +127,7 @@ export class LotteryContractService {
   /**
    * emit balance of the user
    */
-  public async getUserBalance() {
+  public getUserBalance() {
     if(this.accounts && this.accounts.length > 0) {
       from(this.web3js.eth.getBalance(this.accounts[0]))
         .pipe(take(1))
@@ -162,8 +164,7 @@ export class LotteryContractService {
   public handleAccountChange() {
     if (window && window.ethereum) {
       window.ethereum.on('accountsChanged', (accounts: Array<string>) => {
-        this.accounts = accounts;
-        this._connectedAccount.next(this.accounts);
+        window.location.reload();
       });
     }
   }

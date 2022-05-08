@@ -29,9 +29,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
-    setInterval(() => {
-      this.contractService.connectAccount();
-    }, 3000);
+    this.contractService.connectAccount();
 
     this.subscriptions.add(
       this.contractService.connectedAccount$.subscribe((accounts) => {
@@ -83,8 +81,6 @@ export class LotteryComponent implements OnInit, OnDestroy {
         this.newPlayerAdded = player;
       })
     );
-    this.contractService.handleAccountChange();
-    this.contractService.filterEvents();
   }
 
   /**
