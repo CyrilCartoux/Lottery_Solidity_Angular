@@ -30,7 +30,7 @@ jobs:
       run: node compile_lottery
       working-directory: ethereum
     - name: Deploy
-      run: node deploy
+      run: node deploy_lottery
       working-directory: ethereum
     - name: Test
       run: npm run test
