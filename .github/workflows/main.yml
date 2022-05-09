@@ -26,12 +26,9 @@ jobs:
     - name: Setup
       run: npm ci
       working-directory: ethereum
-    - name: Compile
-      run: node compile_lottery
-      working-directory: ethereum
-    - name: Deploy
-      run: node deploy_lottery
+    - name: Install Truffle
+      run: npm install truffle -g
       working-directory: ethereum
     - name: Test
-      run: npm run test
+      run: truffle test
       working-directory: ethereum
