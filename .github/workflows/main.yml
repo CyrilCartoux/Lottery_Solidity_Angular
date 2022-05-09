@@ -25,6 +25,8 @@ jobs:
         cache-dependency-path: ethereum/package-lock.json
     - name: Setup
       run: npm ci
+      run: node compile_lottery
+      run: node deploy
       working-directory: ethereum
     - name: Test
       run: npm run test
