@@ -1,4 +1,12 @@
 # LotteryAngular
+
+[![pages-build-deployment](https://github.com/CyrilCartoux/Lottery_Solidity_Angular/actions/workflows/pages/pages-build-deployment/badge.svg)](https://github.com/CyrilCartoux/Lottery_Solidity_Angular/actions/workflows/pages/pages-build-deployment)
+
+[![Test/Build Github Actions](https://github.com/CyrilCartoux/Lottery_Solidity_Angular/actions/workflows/main.yml/badge.svg)](https://github.com/CyrilCartoux/Lottery_Solidity_Angular/actions/workflows/main.yml)
+
+You can see it at : https://cyrilcartoux.github.io/Lottery_Solidity_Angular/
+
+
 To run this app 
 npm i
 
