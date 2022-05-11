@@ -46,6 +46,7 @@
     "@types/node": "^12.11.1",
     "@types/prop-types": "^15.7.4",
     "@types/react": "^17.0.42",
+    "angular-cli-ghpages": "^1.0.0",
     "jasmine-core": "~4.0.0",
     "karma": "~6.3.0",
     "karma-chrome-launcher": "~3.1.0",

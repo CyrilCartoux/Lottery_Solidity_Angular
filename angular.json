@@ -43,8 +43,8 @@
               "budgets": [
                 {
                   "type": "initial",
-                  "maximumWarning": "500kb",
-                  "maximumError": "1mb"
+                  "maximumWarning": "4mb",
+                  "maximumError": "4mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -105,6 +105,16 @@
               "src/styles.less"
             ],
             "scripts": []
+          }
+        },
+        "deploy": {
+          "builder": "angular-cli-ghpages:deploy",
+          "options": {
+            "baseHref": "/Lottery_Solidity_Angular/",
+            "name": "CyrilCartoux",
+            "email": "6ssou@protonmail.com",
+            "noSilent": true,
+            "dryRun": false
           }
         }
       }
