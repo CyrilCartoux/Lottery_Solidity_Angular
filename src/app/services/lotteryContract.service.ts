@@ -10,7 +10,6 @@ import lotteryContract from './lottery_contract';
 export class LotteryContractService {
   private web3js: any;
   private accounts: any;
-  web3Modal: any;
   private lotteryContract: any;
   ethUtils: typeof EthUtils = EthUtils;
 
