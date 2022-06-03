@@ -11,7 +11,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
 export class HeaderComponent implements OnInit, OnDestroy {
   userBalance$: Subscription | undefined;
   connectedAccount$: Subscription | undefined;
-  accounts: string[] = [];
+  account: string[] = [];
   userBalance: number | undefined;
   ethUtils: typeof EthUtils = EthUtils;
 
@@ -20,7 +20,7 @@ export class HeaderComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.connectedAccount$ =
       this.lotteryContractService.connectedAccount$.subscribe(
-        (accounts) => (this.accounts = accounts)
+        (accounts) => (this.account = accounts)
       );
     this.userBalance$ = this.lotteryContractService.userBalance$.subscribe(
       (userBalance) =>

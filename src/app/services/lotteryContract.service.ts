@@ -1,6 +1,6 @@
 import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, from, Observable, of, take } from 'rxjs';
+import { BehaviorSubject, catchError, from, map, Observable, of, take } from 'rxjs';
 import web3 from './web3';
 import lotteryContract from './lottery_contract';
 
@@ -38,7 +38,9 @@ export class LotteryContractService {
    */
   public connectAccount() {
     from(this.web3js.eth.getAccounts())
-      .pipe(take(1))
+      .pipe(
+        map((account)=> {return (<string[]>account)[0]})
+      )
       .subscribe((account) => {
         this.accounts = account;
         this._connectedAccount.next(account);
@@ -53,7 +55,7 @@ export class LotteryContractService {
       return from<string[]>(
         this.lotteryContract?.methods
           .getPlayers()
-          .call({ from: this.accounts[0] })
+          .call({ from: this.accounts })
       );
     }
     return of('');
@@ -67,7 +69,7 @@ export class LotteryContractService {
     return from(
       this.lotteryContract?.methods
         .enter()
-        .send({ from: this.accounts[0], value: updatedAmountInGwei })
+        .send({ from: this.accounts, value: updatedAmountInGwei })
         .on('transactionHash', (hash: any) => {
           this._transactionHash.next(hash);
         })
@@ -107,7 +109,7 @@ export class LotteryContractService {
     return from(
       this.lotteryContract.methods
         .pickWinner()
-        .send({ from: this.accounts[0] })
+        .send({ from: this.accounts })
         .on('transactionHash', (hash: string) => {
           this._transactionHash.next(hash);
         })
@@ -128,7 +130,7 @@ export class LotteryContractService {
    */
   public getUserBalance() {
     if(this.accounts && this.accounts.length > 0) {
-      from(this.web3js.eth.getBalance(this.accounts[0]))
+      from(this.web3js.eth.getBalance(this.accounts))
         .pipe(take(1))
         .subscribe((bal) => this._userBalance.next(bal));
     }
@@ -141,7 +143,7 @@ export class LotteryContractService {
     return from(
       this.lotteryContract.methods
         .transfer()
-        .send({ from: this.accounts[0] })
+        .send({ from: this.accounts })
         .on('transactionHash', (hash: any) => {
           this._transactionHash.next(hash);
         })

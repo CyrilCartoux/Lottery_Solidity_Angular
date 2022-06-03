@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 })
 export class LotteryComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
-  userEthAccounts: string[] = [];
+  userEthAccount: string[] = [];
   etherAmount: any = null;
   players: any;
   managerAddress: any;
@@ -32,9 +32,9 @@ export class LotteryComponent implements OnInit, OnDestroy {
     this.contractService.connectAccount();
 
     this.subscriptions.add(
-      this.contractService.connectedAccount$.subscribe((accounts) => {
-        if (accounts) {
-          this.userEthAccounts = accounts;
+      this.contractService.connectedAccount$.subscribe((account) => {
+        if (account) {
+          this.userEthAccount = account;
           this.contractService.getUserBalance();
           this.subscriptions.add(
             this.contractService
