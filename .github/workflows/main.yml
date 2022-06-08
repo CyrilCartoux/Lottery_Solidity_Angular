@@ -32,6 +32,8 @@ jobs:
     - name: Test
       run: truffle test
       working-directory: ethereum
+    - name: Lint
+      run: ng lint
     - name: Deploy
       if: github.event_name != 'pull_request'
       env:

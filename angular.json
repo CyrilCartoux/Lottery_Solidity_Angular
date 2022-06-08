@@ -116,9 +116,21 @@
             "noSilent": true,
             "dryRun": false
           }
+        },
+        "lint": {
+          "builder": "@angular-eslint/builder:lint",
+          "options": {
+            "lintFilePatterns": [
+              "src/**/*.ts",
+              "src/**/*.html"
+            ]
+          }
         }
       }
     }
   },
-  "defaultProject": "Lottery-angular"
+  "defaultProject": "Lottery-angular",
+  "cli": {
+    "defaultCollection": "@angular-eslint/schematics"
+  }
 }
