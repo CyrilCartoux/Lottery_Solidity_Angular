@@ -23,7 +23,7 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
         cache-dependency-path: ethereum/package-lock.json
-    - name: Setup eth
+    - name: Setup
       run: npm ci
       working-directory: ethereum
     - name: Install Truffle
@@ -32,11 +32,6 @@ jobs:
     - name: Test
       run: truffle test
       working-directory: ethereum
-    - name: Setup angular
-      run: npm install -g @angular/cli
-      working-directory: src
-    - name: Lint
-      run: ng lint
     - name: Deploy
       if: github.event_name != 'pull_request'
       env:
