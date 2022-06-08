@@ -33,7 +33,7 @@ jobs:
       run: truffle test
       working-directory: ethereum
     - name: Setup angular
-      run: npm ci
+      run: npm install -g @angular/cli
       working-directory: src
     - name: Lint
       run: ng lint
