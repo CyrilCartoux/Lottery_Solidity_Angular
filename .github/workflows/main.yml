@@ -34,6 +34,7 @@ jobs:
       working-directory: ethereum
     - name: Setup angular
       run: npm ci
+      working-directory: src
     - name: Lint
       run: ng lint
     - name: Deploy
