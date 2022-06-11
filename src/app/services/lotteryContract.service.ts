@@ -39,7 +39,7 @@ export class LotteryContractService {
   public connectAccount() {
     from(this.web3js.eth.getAccounts())
       .pipe(
-        map((account)=> {return (<string[]>account)[0]})
+        map((account) => { return (<string>account)[0] })
       )
       .subscribe((account) => {
         this.accounts = account;
@@ -51,7 +51,7 @@ export class LotteryContractService {
    * @returns Promise<string[]> List of all players
    */
   public getPlayers(): Observable<string> {
-    if(this.accounts && this.accounts.length > 0) {
+    if (this.accounts && this.accounts.length > 0) {
       return from<string[]>(
         this.lotteryContract?.methods
           .getPlayers()
@@ -129,9 +129,10 @@ export class LotteryContractService {
    * emit balance of the user
    */
   public getUserBalance() {
-    if(this.accounts && this.accounts.length > 0) {
+    if (this.accounts && this.accounts.length > 0) {
       from(this.web3js.eth.getBalance(this.accounts))
-        .pipe(take(1))
+        .pipe(
+          map(bal => this.web3js.utils.fromWei(bal)))
         .subscribe((bal) => this._userBalance.next(bal));
     }
   }
