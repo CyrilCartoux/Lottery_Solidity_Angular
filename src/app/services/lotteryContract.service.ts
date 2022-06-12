@@ -1,7 +1,7 @@
 import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
 import { BehaviorSubject, catchError, from, map, Observable, of, take } from 'rxjs';
-import web3 from './web3';
+import {web3} from './web3';
 import lotteryContract from './lottery_contract';
 
 @Injectable({
@@ -29,7 +29,6 @@ export class LotteryContractService {
     // create web3 instance
     this.web3js = web3;
     this.lotteryContract = lotteryContract;
-    this.handleAccountChange();
     this.filterEvents();
   }
 
@@ -161,14 +160,6 @@ export class LotteryContractService {
    */
   public getWinner(): Observable<string> {
     return from<string>(this.lotteryContract.methods.previousWinner().call());
-  }
-
-  public handleAccountChange() {
-    if (window && window.ethereum) {
-      window.ethereum.on('accountsChanged', (accounts: Array<string>) => {
-        window.location.reload();
-      });
-    }
   }
 
   public filterEvents() {

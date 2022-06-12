@@ -24,6 +24,10 @@
           <p class="small mb-0">{{account}}</p>
           <p class="small" *ngIf="userBalance"> {{userBalance}} ether</p>
         </div>
+        <div *ngIf="!account" style="display: flex; flex-direction: column; height: 40px;align-items: flex-start;">
+          <button class="btn btn-success" (click)="onConnectAccount()">Connect</button>
+
+        </div>
       </div>
     </div>
   </div>
