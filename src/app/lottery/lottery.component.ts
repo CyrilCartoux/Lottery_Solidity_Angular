@@ -1,7 +1,7 @@
 import { EthUtils } from './../utils/eth-utils';
 import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { flatMap, mergeMap, Subscription, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-lottery',
@@ -10,7 +10,7 @@ import { Subscription } from 'rxjs';
 })
 export class LotteryComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
-  userEthAccount: string[] = [];
+  userEthAccount!: string;
   etherAmount: any = null;
   players: any;
   managerAddress: any;
@@ -23,61 +23,52 @@ export class LotteryComponent implements OnInit, OnDestroy {
   ethUtils: typeof EthUtils = EthUtils;
   newPlayerAdded: string | undefined;
 
-  constructor(private contractService: LotteryContractService) {}
+  constructor(private lotteryContractService: LotteryContractService) { }
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
   ngOnInit(): void {
-    this.contractService.connectAccount();
 
     this.subscriptions.add(
-      this.contractService.connectedAccount$.subscribe((account) => {
-        if (account) {
+      this.lotteryContractService.getAccount()
+        .subscribe((account: string) => {
           this.userEthAccount = account;
-          this.contractService.getUserBalance();
-          this.subscriptions.add(
-            this.contractService
-              .getContractManager()
-              .subscribe((manager) => (this.managerAddress = manager))
-          );
-          this.subscriptions.add(
-            this.contractService
-              .getContractBalance()
-              .subscribe(
-                (bal: number) =>
-                  (this.contractBalance = this.ethUtils.fromWeiToEth(bal))
-              )
-          );
-          this.subscriptions.add(
-            this.contractService
-              .getPlayers()
-              .subscribe((player) => (this.players = player))
-          );
-          this.subscriptions.add(
-            this.contractService
-              .getWinner()
-              .subscribe((winner) => (this.winner = winner))
-          );
-        }
-      })
+        })
     );
     this.subscriptions.add(
-      this.contractService.transactionHash$.subscribe((hash) => {
+      this.lotteryContractService
+        .getContractManager()
+        .subscribe((manager) => (this.managerAddress = manager))
+    );
+    this.subscriptions.add(
+      this.lotteryContractService
+        .getContractBalance()
+        .subscribe(
+          (bal: number) =>
+            (this.contractBalance = this.ethUtils.fromWeiToEth(bal))
+        )
+    );
+    this.subscriptions.add(
+      this.lotteryContractService
+        .getPlayers()
+        .subscribe((player) => (this.players = player))
+    );
+    this.subscriptions.add(
+      this.lotteryContractService
+        .getWinner()
+        .subscribe((winner) => (this.winner = winner))
+    );
+    this.subscriptions.add(
+      this.lotteryContractService.transactionHash$.subscribe((hash) => {
         this.hash = hash;
       })
     );
     this.subscriptions.add(
-      this.contractService.winner$.subscribe((winner) => (this.winner = winner))
+      this.lotteryContractService.winner$.subscribe((winner) => (this.winner = winner))
     );
     this.subscriptions.add(
-      this.contractService.userBalance$.subscribe(
-        (userBalance) =>
-          (this.userBalance = this.ethUtils.fromWeiToEth(userBalance))
-      )
-    );
-    this.subscriptions.add(
-      this.contractService.eventNewPlayer$.subscribe((player) => {
+      this.lotteryContractService.eventNewPlayer$.subscribe((player) => {
         this.newPlayerAdded = player;
       })
     );
@@ -89,7 +80,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
   onEnterLottery(amount: number) {
     this.transactionPending = true;
     this.enteredLottery = false;
-    this.contractService.enter(amount).subscribe((result) => {
+    this.lotteryContractService.enter(amount).subscribe((result) => {
       if (result) {
         this.transactionPending = false;
         this.enteredLottery = true;
@@ -106,7 +97,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
    */
   onPickWinner() {
     this.transactionPending = true;
-    this.contractService.pickWinner().subscribe((winner) => {
+    this.lotteryContractService.pickWinner().subscribe((winner) => {
       this.transactionPending = false;
       this.winner = winner;
     });
@@ -117,7 +108,7 @@ export class LotteryComponent implements OnInit, OnDestroy {
    */
   onTransfer() {
     this.transactionPending = true;
-    this.contractService.transfer().subscribe(() => {
+    this.lotteryContractService.transfer().subscribe(() => {
       this.transactionPending = false;
     });
   }

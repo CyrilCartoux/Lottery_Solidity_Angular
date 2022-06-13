@@ -1,7 +1,7 @@
 import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, from, map, Observable, of, take } from 'rxjs';
-import {web3} from './web3';
+import { BehaviorSubject, catchError, from, map, Observable, of, Subject, take } from 'rxjs';
+import { web3 } from './web3';
 import lotteryContract from './lottery_contract';
 
 @Injectable({
@@ -13,37 +13,32 @@ export class LotteryContractService {
   private lotteryContract: any;
   ethUtils: typeof EthUtils = EthUtils;
 
-  private _connectedAccount = new BehaviorSubject<any>(null);
   private _transactionHash = new BehaviorSubject<any>(null);
   private _winner = new BehaviorSubject<any>(null);
-  private _userBalance = new BehaviorSubject<any>(null);
   private _eventNewPlayer = new BehaviorSubject<any>(null);
 
-  connectedAccount$ = this._connectedAccount.asObservable();
   transactionHash$ = this._transactionHash.asObservable();
   winner$ = this._winner.asObservable();
-  userBalance$ = this._userBalance.asObservable();
   eventNewPlayer$ = this._eventNewPlayer.asObservable();
 
   constructor() {
     // create web3 instance
     this.web3js = web3;
     this.lotteryContract = lotteryContract;
+    this.getAccount().subscribe((account) => {
+      this.accounts = account;
+    });
     this.filterEvents();
   }
 
   /**
    * Load connected account
    */
-  public connectAccount() {
-    from(this.web3js.eth.getAccounts())
+  public getAccount(): Observable<string> {
+    return from(this.web3js.eth.getAccounts())
       .pipe(
         map((account) => { return (<string>account)[0] })
       )
-      .subscribe((account) => {
-        this.accounts = account;
-        this._connectedAccount.next(account);
-      });
   }
 
   /**
@@ -127,13 +122,11 @@ export class LotteryContractService {
   /**
    * emit balance of the user
    */
-  public getUserBalance() {
-    if (this.accounts && this.accounts.length > 0) {
-      from(this.web3js.eth.getBalance(this.accounts))
-        .pipe(
-          map(bal => this.web3js.utils.fromWei(bal)))
-        .subscribe((bal) => this._userBalance.next(bal));
-    }
+  public getUserBalance(): Observable<string> {
+    return from(this.web3js.eth.getBalance(this.accounts))
+      .pipe(
+        map(bal => this.web3js.utils.fromWei(bal)))
+
   }
 
   /**
