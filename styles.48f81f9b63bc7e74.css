@@ -1,4 +1,4 @@
-@charset "UTF-8";/*!
+.header-info{display:flex;flex-direction:column;height:40px;align-items:flex-start}@charset "UTF-8";/*!
  * Bootstrap v5.1.3 (https://getbootstrap.com/)
  * Copyright 2011-2021 The Bootstrap Authors
  * Copyright 2011-2021 Twitter, Inc.
