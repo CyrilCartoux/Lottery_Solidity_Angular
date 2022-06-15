@@ -1,7 +1,8 @@
 import { EthUtils } from './../utils/eth-utils';
-import { Subscription } from 'rxjs';
+import { from, Subscription, switchMap, tap } from 'rxjs';
 import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
+import { connectAccount } from '../services/web3';
 
 @Component({
   selector: 'app-header',
@@ -9,27 +10,30 @@ import { Component, OnInit, OnDestroy } from '@angular/core';
   styleUrls: ['./header.component.less'],
 })
 export class HeaderComponent implements OnInit, OnDestroy {
-  userBalance$: Subscription | undefined;
-  connectedAccount$: Subscription | undefined;
-  account: string[] = [];
-  userBalance: number | undefined;
+  subscription: Subscription = new Subscription();
+
+  account: string | undefined;
+  userBalance: string | undefined;
   ethUtils: typeof EthUtils = EthUtils;
 
-  constructor(private lotteryContractService: LotteryContractService) {}
+  constructor(private lotteryContractService: LotteryContractService) { }
 
   ngOnInit() {
-    this.connectedAccount$ =
-      this.lotteryContractService.connectedAccount$.subscribe(
-        (accounts) => (this.account = accounts)
-      );
-    this.userBalance$ = this.lotteryContractService.userBalance$.subscribe(
-      (userBalance) =>
-        (this.userBalance = this.ethUtils.fromWeiToEth(userBalance))
-    );
+    this.subscription.add(this.lotteryContractService.getAccount().pipe(
+      switchMap((acc: string) => {
+        this.account = acc.slice(0, 7).concat('...').concat(acc.slice(-6));
+        return this.lotteryContractService.getUserBalance();
+      })
+    ).subscribe((balance) => {
+      this.userBalance = balance.slice(0, 6);
+    }))
+  }
+
+  onConnectAccount() {
+    connectAccount();
   }
 
   ngOnDestroy(): void {
-    this.connectedAccount$?.unsubscribe();
-    this.userBalance$?.unsubscribe();
+    this.subscription.unsubscribe();
   }
 }

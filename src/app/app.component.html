@@ -4,6 +4,9 @@
     <div class="row">
         <div class="col-12">
             <router-outlet></router-outlet>
+            <div *ngIf="!isConnected" class="d-flex justify-content-center flex-column align-items-center">
+                <button class="btn btn-primary" (click)="onConnectAccount()">Connect your metamask wallet</button>
+            </div>
         </div>
     </div>
 </div>

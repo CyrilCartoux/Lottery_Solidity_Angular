@@ -1,4 +1,4 @@
-name: LotteryApp 
+name: LotteryApp - test ethereum
 
 on:
   push:
@@ -32,8 +32,3 @@ jobs:
     - name: Test
       run: truffle test
       working-directory: ethereum
-    - name: Deploy
-      if: github.event_name != 'pull_request'
-      env:
-        GH_TOKEN: ${{ secrets.GH_TOKEN }}
-      run: npm run deploy --if-present

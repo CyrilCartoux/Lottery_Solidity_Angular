@@ -19,10 +19,15 @@
             src="https://d33wubrfki0l68.cloudfront.net/fcd4ecd90386aeb50a235ddc4f0063cfbb8a7b66/4295e/static/bfc04ac72981166c740b189463e1f74c/40129/eth-diamond-black-white.jpg"
             alt="mdo" width="32" height="32" class="rounded-circle float-lg-start">
         </div>
-        <div *ngIf="account"
-          style="display: flex; flex-direction: column; height: 40px;align-items: flex-start;">
-          <p class="small mb-0">{{account}}</p>
-          <p class="small" *ngIf="userBalance"> {{userBalance}} ether</p>
+        <div *ngIf="account" class="header-info">
+          <div>
+            <p class="small mb-0">{{account}}</p>
+            <p class="small" *ngIf="userBalance"> {{userBalance}} ether</p>
+          </div>
+        </div>
+        <div *ngIf="!account" class="header-info">
+          <button class="btn btn-primary" (click)="onConnectAccount()">Connect</button>
+
         </div>
       </div>
     </div>
