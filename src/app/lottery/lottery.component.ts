@@ -1,7 +1,11 @@
 import { EthUtils } from './../utils/eth-utils';
 import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnDestroy, OnInit } from '@angular/core';
-import { flatMap, mergeMap, Subscription, switchMap } from 'rxjs';
+import {
+  Subscription,
+  Observable,
+  map,
+} from 'rxjs';
 
 @Component({
   selector: 'app-lottery',
@@ -10,62 +14,40 @@ import { flatMap, mergeMap, Subscription, switchMap } from 'rxjs';
 })
 export class LotteryComponent implements OnInit, OnDestroy {
   subscriptions: Subscription = new Subscription();
-  userEthAccount!: string;
   etherAmount: any = null;
-  players: any;
-  managerAddress: any;
-  contractBalance: any;
+
+  userEthAccount$: Observable<string> | undefined;
+  players$: Observable<string> | undefined;
+  winner$: Observable<any> | undefined;
+  managerAddress$: Observable<string> | undefined;
+  contractBalance$: Observable<any> | undefined;
+
+  hash: any = null;
   userBalance: any;
   transactionPending: boolean = false;
-  hash: any = null;
-  winner: any;
   enteredLottery: boolean = false;
   ethUtils: typeof EthUtils = EthUtils;
   newPlayerAdded: string | undefined;
 
-  constructor(private lotteryContractService: LotteryContractService) { }
+  constructor(private lotteryContractService: LotteryContractService) {}
   ngOnDestroy(): void {
     this.subscriptions.unsubscribe();
   }
 
   ngOnInit(): void {
+    this.userEthAccount$ = this.lotteryContractService.getAccount();
+    this.managerAddress$ = this.lotteryContractService.getContractManager();
+    this.contractBalance$ = this.lotteryContractService
+      .getContractBalance()
+      .pipe(map((bal) => this.ethUtils.fromWeiToEth(bal)));
 
-    this.subscriptions.add(
-      this.lotteryContractService.getAccount()
-        .subscribe((account: string) => {
-          this.userEthAccount = account;
-        })
-    );
-    this.subscriptions.add(
-      this.lotteryContractService
-        .getContractManager()
-        .subscribe((manager) => (this.managerAddress = manager))
-    );
-    this.subscriptions.add(
-      this.lotteryContractService
-        .getContractBalance()
-        .subscribe(
-          (bal: number) =>
-            (this.contractBalance = this.ethUtils.fromWeiToEth(bal))
-        )
-    );
-    this.subscriptions.add(
-      this.lotteryContractService
-        .getPlayers()
-        .subscribe((player) => (this.players = player))
-    );
-    this.subscriptions.add(
-      this.lotteryContractService
-        .getWinner()
-        .subscribe((winner) => (this.winner = winner))
-    );
+    this.players$ = this.lotteryContractService.getPlayers();
+    this.winner$ = this.lotteryContractService.getWinner();
+
     this.subscriptions.add(
       this.lotteryContractService.transactionHash$.subscribe((hash) => {
         this.hash = hash;
       })
-    );
-    this.subscriptions.add(
-      this.lotteryContractService.winner$.subscribe((winner) => (this.winner = winner))
     );
     this.subscriptions.add(
       this.lotteryContractService.eventNewPlayer$.subscribe((player) => {
@@ -97,9 +79,8 @@ export class LotteryComponent implements OnInit, OnDestroy {
    */
   onPickWinner() {
     this.transactionPending = true;
-    this.lotteryContractService.pickWinner().subscribe((winner) => {
+    this.lotteryContractService.pickWinner().subscribe(() => {
       this.transactionPending = false;
-      this.winner = winner;
     });
   }
 
