@@ -12,8 +12,7 @@ import {
   templateUrl: './lottery.component.html',
   styleUrls: ['./lottery.component.less'],
 })
-export class LotteryComponent implements OnInit, OnDestroy {
-  subscriptions: Subscription = new Subscription();
+export class LotteryComponent implements OnInit {
   etherAmount: any = null;
 
   userEthAccount$: Observable<string> | undefined;
@@ -30,9 +29,6 @@ export class LotteryComponent implements OnInit, OnDestroy {
   ethUtils: typeof EthUtils = EthUtils;
 
   constructor(private lotteryContractService: LotteryContractService) { }
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
 
   ngOnInit(): void {
     this.userEthAccount$ = this.lotteryContractService.getAccount();
