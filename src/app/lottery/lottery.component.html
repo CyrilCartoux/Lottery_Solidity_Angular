@@ -1,58 +1,64 @@
 <div class="container-fluid">
-    
-
-    <div *ngIf="(userEthAccount$ | async)">
-        <div class="d-flex justify-content-center align-items-center flex-column">
-            <h1> Welcome to the World Best Lottery <i class="fa-solid fa-party-horn"></i></h1>
-            <div *ngIf="(managerAddress$ | async) !== (userEthAccount$ | async)">
-                <p class="small">
-                    managed by : {{managerAddress$ | async}}
-                </p>
-            </div>
-            <h2>
-                Current prize pool is : {{(contractBalance$ | async) ? (contractBalance$ | async) : 0}} ether 
-            </h2>
-            <h4 class="mt-4" *ngIf="enteredLottery">Congratulations {{newPlayerAdded}} ! You are now registered to win the prize pool</h4>
-        </div>
-        <div class="mb-5" *ngIf="(managerAddress$ | async) === (userEthAccount$ | async)">
-            <p class="mt-4">You are the manager of this contract ! You are only able to pick a winner.</p>
-        </div>
 
 
-        
-
-        
-
-        <div *ngIf="((managerAddress$ | async) !== (userEthAccount$ | async)) && !transactionPending" class="d-flex justify-content-center mt-5">
-                <div class="input-group mb-3" style="width: 500px;">
-                    <input type="text" [(ngModel)]="etherAmount" class="form-control" placeholder="Ether" aria-label="Amount (min. 0.01ether)">
-                    <button type="button" (click)="onEnterLottery(etherAmount)" class="btn btn-success">Enter the lottery !</button>
-                </div>
-        </div>
-
-        <div *ngIf="transactionPending" class="mt-5">
-            <div class="d-flex justify-content-center flex-column align-items-center">
-                <div class="spinner-grow text-primary d-flex justify-content-center" role="status">
-                </div>
-                <br>
-                <p class="sr-only">Waiting for confirmation...</p>
-                <p class="small" *ngIf="hash">transaction id {{hash}}</p>
-            </div>
-        </div>
-
-        <div *ngIf="((managerAddress$ | async) === (userEthAccount$ | async))">
-            List of all players addresses: 
-            <ul>
-                <li *ngFor="let player of players$ | async">
-                    {{player}}
-                </li>
-            </ul>
-        </div>
-
-        <button type="button" (click)="onPickWinner()" *ngIf="((managerAddress$ | async) === (userEthAccount$ | async))" class="btn btn-success" style="margin-right: 15px;">Pick a lucky winner</button>
-        <button type="button" (click)="onTransfer()" *ngIf="((managerAddress$ | async) === (userEthAccount$ | async))" class="btn btn-danger">Steal the money </button>
+  <div *ngIf="(userEthAccount$ | async)">
+    <div class="d-flex justify-content-center align-items-center flex-column">
+      <h1> Welcome to the World Best Lottery <i class="fa-solid fa-party-horn"></i></h1>
+      <div *ngIf="(managerAddress$ | async) !== (userEthAccount$ | async)">
+        <p class="small">
+          managed by : {{managerAddress$ | async}}
+        </p>
+      </div>
+      <h2>
+        Current prize pool is : {{(contractBalance$ | async) ? (contractBalance$ | async) : 0}} ether
+      </h2>
+      <h4 class="mt-4" *ngIf="enteredLottery">Congratulations {{newPlayerAdded$ | async}} ! You are now registered to
+        win the
+        prize pool</h4>
     </div>
-    <div class="fixed-bottom">
-        <p>The last winner is {{winner$ | async}} <p>
+    <div class="mb-5" *ngIf="(managerAddress$ | async) === (userEthAccount$ | async)">
+      <p class="mt-4">You are the manager of this contract ! You are only able to pick a winner.</p>
     </div>
+
+
+
+
+
+
+    <div *ngIf="((managerAddress$ | async) !== (userEthAccount$ | async)) && !transactionPending"
+      class="d-flex justify-content-center mt-5">
+      <div class="input-group mb-3" style="width: 500px;">
+        <input type="text" [(ngModel)]="etherAmount" class="form-control" placeholder="Ether"
+          aria-label="Amount (min. 0.01ether)">
+        <button type="button" (click)="onEnterLottery(etherAmount)" class="btn btn-success">Enter the lottery !</button>
+      </div>
+    </div>
+
+    <div *ngIf="transactionPending" class="mt-5">
+      <div class="d-flex justify-content-center flex-column align-items-center">
+        <div class="spinner-grow text-primary d-flex justify-content-center" role="status">
+        </div>
+        <br>
+        <p class="sr-only">Waiting for confirmation...</p>
+        <p class="small" *ngIf="hash$ | async as hash">transaction id {{hash}}</p>
+      </div>
+    </div>
+
+    <div *ngIf="((managerAddress$ | async) === (userEthAccount$ | async))">
+      List of all players addresses:
+      <ul>
+        <li *ngFor="let player of players$ | async">
+          {{player}}
+        </li>
+      </ul>
+    </div>
+
+    <button type="button" (click)="onPickWinner()" *ngIf="((managerAddress$ | async) === (userEthAccount$ | async))"
+      class="btn btn-success" style="margin-right: 15px;">Pick a lucky winner</button>
+    <button type="button" (click)="onTransfer()" *ngIf="((managerAddress$ | async) === (userEthAccount$ | async))"
+      class="btn btn-danger">Steal the money </button>
+  </div>
+  <div class="fixed-bottom">
+    <p>The last winner is {{winner$ | async}} <p>
+  </div>
 </div>
