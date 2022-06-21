@@ -28,9 +28,12 @@ module.exports = function (config) {
     coverageReporter: {
       dir: require('path').join(__dirname, './coverage/lottery-angular'),
       subdir: '.',
-      reporters: [
-        { type: 'html' },
-        { type: 'text-summary' }
+      reporters: [{
+          type: 'html'
+        },
+        {
+          type: 'text-summary'
+        }
       ]
     },
     reporters: ['progress', 'kjhtml'],
@@ -38,7 +41,7 @@ module.exports = function (config) {
     colors: true,
     logLevel: config.LOG_INFO,
     autoWatch: true,
-    browsers: ['Safari'],
+    browsers: ['Chrome', 'Safari'],
     singleRun: false,
     restartOnFileChange: true
   });
