@@ -12,8 +12,7 @@ import {
   templateUrl: './lottery.component.html',
   styleUrls: ['./lottery.component.less'],
 })
-export class LotteryComponent implements OnInit, OnDestroy {
-  subscriptions: Subscription = new Subscription();
+export class LotteryComponent implements OnInit {
   etherAmount: any = null;
 
   userEthAccount$: Observable<string> | undefined;
@@ -21,18 +20,15 @@ export class LotteryComponent implements OnInit, OnDestroy {
   winner$: Observable<any> | undefined;
   managerAddress$: Observable<string> | undefined;
   contractBalance$: Observable<any> | undefined;
+  hash$: Observable<any> | undefined
+  newPlayerAdded$: Observable<string> | undefined;
 
-  hash: any = null;
   userBalance: any;
   transactionPending: boolean = false;
   enteredLottery: boolean = false;
   ethUtils: typeof EthUtils = EthUtils;
-  newPlayerAdded: string | undefined;
 
-  constructor(private lotteryContractService: LotteryContractService) {}
-  ngOnDestroy(): void {
-    this.subscriptions.unsubscribe();
-  }
+  constructor(private lotteryContractService: LotteryContractService) { }
 
   ngOnInit(): void {
     this.userEthAccount$ = this.lotteryContractService.getAccount();
@@ -40,20 +36,10 @@ export class LotteryComponent implements OnInit, OnDestroy {
     this.contractBalance$ = this.lotteryContractService
       .getContractBalance()
       .pipe(map((bal) => this.ethUtils.fromWeiToEth(bal)));
-
     this.players$ = this.lotteryContractService.getPlayers();
     this.winner$ = this.lotteryContractService.getWinner();
-
-    this.subscriptions.add(
-      this.lotteryContractService.transactionHash$.subscribe((hash) => {
-        this.hash = hash;
-      })
-    );
-    this.subscriptions.add(
-      this.lotteryContractService.eventNewPlayer$.subscribe((player) => {
-        this.newPlayerAdded = player;
-      })
-    );
+    this.hash$ = this.lotteryContractService.transactionHash$;
+    this.newPlayerAdded$ = this.lotteryContractService.eventNewPlayer$;
   }
 
   /**

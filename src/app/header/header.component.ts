@@ -1,5 +1,4 @@
-import { EthUtils } from './../utils/eth-utils';
-import { from, Subscription, switchMap, tap } from 'rxjs';
+import { Subscription, switchMap } from 'rxjs';
 import { LotteryContractService } from '../services/lotteryContract.service';
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { connectAccount } from '../services/web3';
@@ -14,7 +13,6 @@ export class HeaderComponent implements OnInit, OnDestroy {
 
   account: string | undefined;
   userBalance: string | undefined;
-  ethUtils: typeof EthUtils = EthUtils;
 
   constructor(private lotteryContractService: LotteryContractService) { }
 
