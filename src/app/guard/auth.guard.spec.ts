@@ -9,12 +9,13 @@ describe('AuthGuard', () => {
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      imports: [RouterTestingModule], providers: [LotteryContractService]
+      imports: [RouterTestingModule],
+      providers: [LotteryContractService],
     });
     guard = TestBed.inject(AuthGuard);
   });
 
-  xit('should be created', () => {
+  it('should be created', () => {
     expect(guard).toBeTruthy();
   });
 });
