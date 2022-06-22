@@ -1,6 +1,6 @@
 import { EthUtils } from './../utils/eth-utils';
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, catchError, from, map, Observable, of, Subject, take } from 'rxjs';
+import { BehaviorSubject, catchError, from, map, Observable, of, Subject, take, throwError } from 'rxjs';
 import { web3 } from './web3';
 import lotteryContract from './lottery_contract';
 
@@ -13,7 +13,7 @@ export class LotteryContractService {
   private lotteryContract: any;
   ethUtils: typeof EthUtils = EthUtils;
 
-  private _transactionHash = new BehaviorSubject<any>(null);
+  private _transactionHash = new Subject<any>();
   private _winner = new BehaviorSubject<any>(null);
   private _eventNewPlayer = new BehaviorSubject<any>(null);
 
@@ -67,10 +67,12 @@ export class LotteryContractService {
         .on('transactionHash', (hash: any) => {
           this._transactionHash.next(hash);
         })
-    ).pipe(
-      take(1),
-      catchError((err) => of(null))
-    );
+        .on('error', (err: any) => {
+          this._transactionHash.next(null);
+        }
+        )
+    )
+
   }
 
   /**
@@ -110,6 +112,7 @@ export class LotteryContractService {
     ).pipe(
       take(1),
       catchError((err) => {
+        this._transactionHash.next(null);
         return of(null);
       })
     );
@@ -143,6 +146,7 @@ export class LotteryContractService {
     ).pipe(
       take(1),
       catchError((err) => {
+        this._transactionHash.next(null);
         return of(null);
       })
     );
@@ -160,7 +164,14 @@ export class LotteryContractService {
       { filter: {} },
       async (err: any, event: any) => {
         if (err) console.log(err);
-        this._eventNewPlayer.next(event.returnValues._address);
+        window.location.reload();
+      }
+    );
+    this.lotteryContract.events.WinnerPicked(
+      { filter: {} },
+      async (err: any, event: any) => {
+        if (err) console.log(err);
+        window.location.reload();
       }
     );
   }
