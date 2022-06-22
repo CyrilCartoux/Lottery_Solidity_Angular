@@ -1,10 +1,13 @@
 import { EthUtils } from './../utils/eth-utils';
 import { LotteryContractService } from '../services/lotteryContract.service';
-import { Component, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import {
-  Subscription,
   Observable,
   map,
+  take,
+  tap,
+  catchError,
+  of
 } from 'rxjs';
 
 @Component({
@@ -33,12 +36,25 @@ export class LotteryComponent implements OnInit {
   ngOnInit(): void {
     this.userEthAccount$ = this.lotteryContractService.getAccount();
     this.managerAddress$ = this.lotteryContractService.getContractManager();
+    // pipe the observable and catch error
+    this.hash$ = this.lotteryContractService.transactionHash$.pipe(
+      tap(hash => {
+        if (!hash) {
+          this.transactionPending = false;
+        }
+      })
+    );
+
     this.contractBalance$ = this.lotteryContractService
       .getContractBalance()
       .pipe(map((bal) => this.ethUtils.fromWeiToEth(bal)));
     this.players$ = this.lotteryContractService.getPlayers();
-    this.winner$ = this.lotteryContractService.getWinner();
-    this.hash$ = this.lotteryContractService.transactionHash$;
+    this.winner$ = this.lotteryContractService.getWinner()
+      .pipe(
+        tap((winner) => {
+          console.log('winner :>> ', winner);
+        })
+      )
     this.newPlayerAdded$ = this.lotteryContractService.eventNewPlayer$;
   }
 
